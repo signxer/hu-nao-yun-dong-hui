@@ -70,8 +70,8 @@ function Card({ card, selected, onClick, locale, assetUrl, onSound }: { card: Ra
 const cells = Array.from({ length: 30 }, (_, position) => {
   if (position === 0) return { x: 30, y: 40, w: 150, h: 64 };
   if (position <= 12) return { x: 180 + (position - 1) * 70, y: 40, w: 70, h: 64 };
-  if (position <= 16) return { x: 950, y: 104 + (position - 13) * 60, w: 70, h: 60 };
-  if (position <= 28) return { x: 880 - (position - 17) * 70, y: 344, w: 70, h: 64 };
+  if (position <= 15) return { x: 950, y: 104 + (position - 13) * 80, w: 70, h: 80 };
+  if (position <= 28) return { x: 880 - (position - 16) * 70, y: 344, w: 70, h: 64 };
   return { x: 30, y: 284, w: 80, h: 60 };
 });
 const spaceColors = ['#6ab8e5', '#f1b62a', '#56a94c', '#55a4e0', '#f05a21', '#e86ccf'];
@@ -84,21 +84,21 @@ function Board({ state, locale, assetPack, movingId }: { state: GameState; local
     <path d="M46 187 C175 140 260 150 378 184 S618 232 796 172 S944 149 1000 187 L1000 268 C887 306 776 306 625 270 S306 213 46 271Z" fill="#8c47b6" opacity=".82" /><path d="M78 188 C149 156 211 148 269 169 C230 178 205 203 173 214 C135 218 106 209 78 188Z" fill="#2d7b4a" /><path d="M210 175 l24 -48 24 48Z M243 175 l22 -59 25 59Z M817 175 l22 -58 24 58Z M858 172 l27 -45 23 45Z" fill="#1e7546" />
     <text x="520" y="213" textAnchor="middle" fill="#f7f3ed" fontSize="76" fontWeight="1000" letterSpacing="-8">{displayBoardName(state.board, locale)}</text><text x="520" y="244" textAnchor="middle" fill="#f9d91b" fontSize="12" fontWeight="900" letterSpacing="5">{locale === 'zh' ? '掷骰 · 移动 · 混乱' : 'ROLL · MOVE · CHAOS'}</text>
     {cells.map((cell, position) => { const effect = state.board === 'Wild Wilds' ? wildEffects[position] : undefined; return <g key={position}><rect x={cell.x} y={cell.y} width={cell.w} height={cell.h} rx="3" fill={position === 0 ? '#f7f1e9' : spaceColors[position % spaceColors.length]} stroke="#171318" strokeWidth="4" />{position === 0 ? <text x={cell.x + cell.w / 2} y={cell.y + 40} textAnchor="middle" fill="#171318" fontSize="25" fontWeight="1000">{locale === 'zh' ? '起点' : 'START'}</text> : <text x={cell.x + 8} y={cell.y + 18} fill="#171318" fontSize="11" fontWeight="900">{position}</text>}{effect ? <g className="space-effect"><circle cx={cell.x + cell.w - 17} cy={cell.y + cell.h - 16} r="15" fill="#171318" opacity=".84" /><text x={cell.x + cell.w - 17} y={cell.y + cell.h - 11} textAnchor="middle" fill="#fff" fontSize={effect === 'trip' ? '7' : '14'} fontWeight="1000">{effectLabel[effect][locale === 'zh' ? 0 : 1]}</text></g> : null}</g>; })}
-    <g className="finish-badge"><rect x="108" y="221" width="17" height="123" fill="#f7f1e9" stroke="#171318" strokeWidth="3" /><circle cx="145" cy="201" r="29" fill="#f7d72c" stroke="#171318" strokeWidth="4" /><text x="145" y="196" textAnchor="middle" fontSize="10" fontWeight="1000">{locale === 'zh' ? '第一' : '1st'}</text><text x="145" y="209" textAnchor="middle" fontSize="9" fontWeight="900">{locale === 'zh' ? '第二' : '2nd'}</text></g>
+    <g className="finish-badge"><circle cx="145" cy="255" r="29" fill="#f7d72c" stroke="#171318" strokeWidth="4" /><text x="145" y="250" textAnchor="middle" fontSize="10" fontWeight="1000">{locale === 'zh' ? '第一' : '1st'}</text><text x="145" y="263" textAnchor="middle" fontSize="9" fontWeight="900">{locale === 'zh' ? '第二' : '2nd'}</text></g>
     {Object.entries(racersByCell).flatMap(([cellIndex, racers]) => racers.map((racer, index) => { const cell = cells[Number(cellIndex)]; const card = racerByName(racer.name); const offset = index % 3; const dx = cell.x + cell.w / 2 + (offset - 1) * 24; const dy = cell.y + cell.h / 2 + (Math.floor(index / 3) * 20 - 10); const url = assetPack[racer.name]; return <g key={racer.id} transform={`translate(${dx} ${dy})`} className={`board-piece ${movingId === racer.id ? 'is-moving' : ''}`}>{url ? <image href={url} x="-21" y="-29" width="42" height="58" preserveAspectRatio="xMidYMid meet" className="piece-image" /> : <><circle r="21" fill={card.color} stroke="#fff" strokeWidth="3" /><text y="6" textAnchor="middle" fill="#fff" fontSize="18" fontWeight="1000">{card.name.slice(0, 1)}</text></>}<title>{displayRacerName(card.name, locale)} · {racer.position}/30</title></g>; }))}
-  </svg><div className="board-caption"><span><i className="legend-dot mild-dot" /> {locale === 'zh' ? 'SVG 格子与移动一致' : 'SVG cells mirror movement'}</span><span><i className="legend-dot star-dot" /> {state.board === 'Wild Wilds' ? (locale === 'zh' ? '星星：+1 分' : 'Star +1 point') : (locale === 'zh' ? '温和大道：无事件' : 'Mild: no events')}</span><span><i className="legend-dot trip-dot" /> {locale === 'zh' ? 'Trip：跳过下次主移动' : 'Trip'}</span></div></div>;
+  </svg><div className="board-caption"><span><i className="legend-dot mild-dot" /> {locale === 'zh' ? 'SVG 格子与移动一致' : 'SVG cells mirror movement'}</span><span><i className="legend-dot star-dot" /> {state.board === 'Wild Wilds' ? (locale === 'zh' ? '星星：+1 分' : 'Star +1 point') : (locale === 'zh' ? '温和大道：无事件' : 'Mild: no events')}</span><span><i className="legend-dot trip-dot" /> {locale === 'zh' ? '绊倒：跳过下次主移动' : 'Trip'}</span></div></div>;
 }
 
 const abilityLabels: Record<AbilityActionId, [string, string]> = {
   legs: ['跳过掷骰，移动 5 格', 'Skip roll · move 5'],
-  'flip-flop': ['Flip Flop：交换格子', 'Flip Flop · swap spaces'],
-  hypnotist: ['催眠：Warp 目标', 'Hypnotize · warp target'],
-  'third-wheel': ['Roll Through：Warp', 'Roll Through · warp'],
+  'flip-flop': ['翻转：交换格子', 'Flip Flop · swap spaces'],
+  hypnotist: ['催眠：传送目标', 'Hypnotize · warp target'],
+  'third-wheel': ['电灯泡：传送', 'Roll Through · warp'],
   cheerleader: ['啦啦队：推动最后一名', 'Cheer · move last place'],
-  duelist: ['宣布 DUEL', 'Declare DUEL'],
-  rocket: ['KABLOOEY：骰子翻倍', 'KABLOOEY · double roll'],
-  magician: ['POOF：准备重掷', 'POOF · prepare reroll'],
-  genius: ['THINK GOOD：预测点数', 'THINK GOOD · predict roll'],
+  duelist: ['宣布决斗', 'Declare DUEL'],
+  rocket: ['咔砰：骰子翻倍', 'KABLOOEY · double roll'],
+  magician: ['噗：准备重掷', 'POOF · prepare reroll'],
+  genius: ['好好想：预测点数', 'THINK GOOD · predict roll'],
 };
 
 function AbilityPanel({ state, racer, locale, activeAction, prediction, onAction, onTarget, onPrediction, onCancel }: { state: GameState; racer?: RacerState; locale: Locale; activeAction: AbilityActionId | null; prediction: number; onAction: (action: AbilityActionId) => void; onTarget: (action: AbilityActionId, targetId: string) => void; onPrediction: (value: number) => void; onCancel: () => void }) {
