@@ -72,7 +72,17 @@ export function createGame(mode: GameMode, locale: Locale): GameState { return {
 export function chooseTeam(state: GameState, playerId: string, names: RacerName[]) { const p = state.players.find((player) => player.id === playerId); if (p) p.team = names; }
 export function beginRace(state: GameState): GameState { const racers = state.players.flatMap((p) => { const picks = p.team.length ? p.team.slice(0, state.players.length === 2 ? 2 : 1) : [RACERS[Math.floor(Math.random() * RACERS.length)].name]; return picks.map((name, i) => ({ id: `${p.id}-${i}`, name, ownerId: p.id, position: 0, score: 0, tripped: false, eliminated: false, finished: null, lastRoll: null })); }); return { ...state, phase: 'race', racers, finishers: [], currentPlayer: 0, board: state.raceNumber % 2 ? 'Mild Mile' : 'Wild Wilds', log: [`第 ${state.raceNumber} 场 · ${state.raceNumber % 2 ? '温和大道' : '荒野狂奔'}`, '所有角色已揭示，玩家 A 先掷骰。'] }; }
 function activeRacers(state: GameState) { return state.racers.filter((r) => !r.eliminated && r.finished === null); }
-function nextPlayerIndex(state: GameState, racer: RacerState, repeat = false) { return repeat ? state.players.findIndex((p) => p.id === racer.ownerId) : (state.currentPlayer + 1) % state.players.length; }
+function hasActiveRacer(state: GameState, playerId: string) { return activeRacers(state).some((racer) => racer.ownerId === playerId); }
+function nextPlayerIndex(state: GameState, racer?: RacerState, repeat = false) {
+  if (repeat && racer && hasActiveRacer(state, racer.ownerId)) {
+    return state.players.findIndex((p) => p.id === racer.ownerId);
+  }
+  for (let offset = 1; offset <= state.players.length; offset += 1) {
+    const candidate = (state.currentPlayer + offset) % state.players.length;
+    if (hasActiveRacer(state, state.players[candidate].id)) return candidate;
+  }
+  return state.currentPlayer;
+}
 function addLog(state: GameState, lines: string[]) { return [...state.log, ...lines].slice(-14); }
 
 export function abilityActions(state: GameState, racer: RacerState | undefined) {
@@ -106,7 +116,7 @@ export function activateAbility(state: GameState, racerId: string, action: Abili
 
 export function takeTurn(state: GameState, racerId?: string, options?: { ability?: AbilityActionId; prediction?: number }): GameState {
   if (state.phase !== 'race') return state;
-  const actor = racerId ?? state.players[state.currentPlayer]?.id; const racer = state.racers.find((r) => r.ownerId === actor && !r.eliminated && r.finished === null); if (!racer) return { ...state, currentPlayer: (state.currentPlayer + 1) % state.players.length };
+  const actor = racerId ?? state.players[state.currentPlayer]?.id; const racer = state.racers.find((r) => r.ownerId === actor && !r.eliminated && r.finished === null); if (!racer) return { ...state, currentPlayer: nextPlayerIndex(state) };
   const card = racerByName(racer.name); const lines: string[] = []; const skipRoll = options?.ability === 'legs'; const roll = skipRoll ? 5 : Math.floor(Math.random() * 6) + 1; racer.lastRoll = skipRoll ? null : roll; let distance = roll;
   const start = racer.position; const aloneInLead = racer.position === Math.max(...activeRacers(state).map((item) => item.position)) && activeRacers(state).filter((item) => item.position === racer.position).length === 1;
   if (racer.name === 'Alchemist' && roll <= 2) distance = 4;
