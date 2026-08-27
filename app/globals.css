@@ -137,6 +137,15 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .ability-meter { height: 5px; margin-top: 17px; background: #ddd2cb; }
 .ability-meter span { display: block; height: 100%; background: var(--red); transition: width 260ms var(--ease-out); }
 .ability-controls { margin-top: 8px; padding: 10px; border: 1px solid #d0c5bd; background: #f5efe7; }
+.turn-strip + .ability-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-top: 0; padding: 8px 10px 9px; border-top: 0; background: #fbf8f2; }
+.turn-strip + .ability-controls .ability-control-title { flex: 0 0 auto; margin: 0 2px 0 0; }
+.turn-strip + .ability-controls .ability-control-title span { font-size: 10px; }
+.turn-strip + .ability-controls .ability-control-title small { display: none; }
+.turn-strip + .ability-controls .ability-option { position: relative; margin: 0; }
+.turn-strip + .ability-controls .ability-button { width: auto; min-height: 35px; padding: 7px 10px; border-color: #b9aaa0; background: #fffdfa; }
+.turn-strip + .ability-controls .ability-button::before { content: '✦ '; color: var(--red); }
+.turn-strip + .ability-controls .ability-cancel { min-height: 35px; margin: 0; padding: 7px 10px; }
+.turn-strip + .ability-controls .ability-auto-note { margin-left: auto; }
 .ability-control-title { display: flex; flex-direction: column; gap: 3px; margin-bottom: 9px; }
 .ability-control-title span { color: var(--red); font-size: 10px; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; }
 .ability-control-title small, .ability-auto-note { color: #83777c; font-size: 10px; line-height: 1.25; }
