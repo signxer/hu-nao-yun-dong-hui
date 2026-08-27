@@ -104,6 +104,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .board-wrap { position: relative; }
 .race-board { display: block; width: 100%; height: auto; max-height: 40vh; min-height: 0; overflow: hidden; border: 4px solid #171316; border-radius: 28px; background: #19151d; box-shadow: 10px 10px 0 #171316; }
 .board-piece { transform-box: fill-box; transform-origin: center; cursor: pointer; filter: drop-shadow(2px 3px 0 rgba(23, 19, 22, .7)); }
+.piece-tripped { transform-box: fill-box; transform-origin: center; transform: rotate(90deg); transition: transform 180ms var(--ease-out); }
 .board-piece:hover { filter: drop-shadow(3px 4px 0 #171316) brightness(1.08); }
 .board-piece.is-moving { animation: piece-pop 260ms var(--ease-out); }
 .piece-image { pointer-events: none; }
