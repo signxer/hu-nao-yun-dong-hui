@@ -28,6 +28,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .text-button, .lang-button, .sound-button { border: 0; padding: 8px 0; color: inherit; background: transparent; font-size: 12px; font-weight: 900; }
 .sound-button { color: #6e6268; }
 .sound-button:hover, .text-button:hover, .lang-button:hover { color: var(--red); }
+.exit-button { border: 1px solid #b9aeb2; border-radius: 999px; padding: 7px 10px; color: #7a6d73; background: transparent; font-size: 10px; font-weight: 900; letter-spacing: .04em; transition: color 150ms ease, border-color 150ms ease, transform 150ms var(--ease-out); }
+.exit-button:hover { border-color: var(--red); color: var(--red); transform: translateY(-1px); }
 .keyboard-hint { color: #867a7e; font-size: 10px; font-weight: 800; }
 .asset-panel { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 34px; padding: 15px 16px; border: 1px dashed #c8bbb3; background: rgba(255, 255, 255, .38); }
 .asset-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -252,6 +254,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .post-roll-actions { display: grid; gap: 8px; margin-top: 22px; }
 .post-roll-actions .ability-button { width: 100%; text-align: left; }
 .post-roll-actions .primary-cta { justify-content: center; margin-top: 6px; }
+.exit-overlay { position: fixed; inset: 0; z-index: 140; display: grid; place-items: center; padding: 18px; background: rgba(23, 19, 22, .62); backdrop-filter: blur(5px); animation: overlay-in 160ms var(--ease-out); }
+.exit-card { width: min(460px, 100%); padding: 30px; border: 2px solid var(--ink); background: #f8f4ee; box-shadow: 9px 9px 0 var(--ink); animation: modal-in 220ms var(--ease-out); }
+.exit-card h2 { margin: 10px 0 0; font-size: clamp(30px, 6vw, 48px); line-height: .9; letter-spacing: -.08em; }
+.exit-card p { margin: 18px 0 25px; color: #766a70; font-size: 13px; line-height: 1.4; }
+.exit-card .name-actions { justify-content: flex-end; }
 .finish-celebration { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 42%, rgba(255,255,255,.96), rgba(24,18,25,.94) 62%); animation: overlay-in 180ms var(--ease-out); }
 .finish-celebration::before, .finish-celebration::after { content: ''; position: absolute; width: 52vw; height: 52vw; border: 2px solid currentColor; border-radius: 50%; opacity: .22; animation: trophy-ring 1.2s var(--ease-out) both; }
 .finish-celebration::before { color: #f4c52f; }
