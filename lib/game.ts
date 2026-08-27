@@ -12,8 +12,8 @@ export type RacerName =
 
 export type AbilityActionId =
   | 'alchemist' | 'legs' | 'flip-flop' | 'hypnotist' | 'third-wheel' | 'cheerleader'
-  | 'duelist' | 'rocket' | 'magician' | 'genius' | 'sisyphus' | 'party-animal' | 'copy-cat';
-export type TurnChoice = 'none' | 'legs' | 'alchemist' | 'rocket' | 'magician' | 'sisyphus';
+  | 'duelist' | 'rocket' | 'magician' | 'reroll' | 'genius' | 'sisyphus' | 'party-animal' | 'copy-cat';
+export type TurnChoice = 'none' | 'legs' | 'alchemist' | 'rocket' | 'magician' | 'reroll' | 'sisyphus';
 export interface RacerCard { name: RacerName; zhName: string; tagline: string; ability: string; zhAbility: string; color: string; token: number; speed: number; }
 export interface RacerState {
   id: string; name: RacerName; ownerId: string; position: number; score: number; tripped: boolean;
@@ -23,6 +23,7 @@ export interface PlayerState { id: string; name: string; color: string; isAi?: b
 export interface PendingRoll { racerId: string; roll: number; rerollsUsed: number; start: number; }
 export interface DecisionPrompt { id: string; kind: 'mastermind' | 'egg' | 'twin'; racerId: string; choices: string[]; }
 export interface GameState {
+  version?: number; presentationSeq?: number;
   mode: GameMode; locale: Locale; phase: 'home' | 'draft' | 'race-select' | 'race' | 'result' | 'game-over' | 'room';
   board: BoardName; raceNumber: number; players: PlayerState[]; racers: RacerState[]; currentPlayer: number;
   currentRacerId?: string | null; finishers: string[]; raceSelections: Record<string, RacerName[]>;
@@ -32,6 +33,7 @@ export interface GameState {
   log: string[]; roomCode?: string; connected?: number; pendingRoll?: PendingRoll | null;
   pendingDecision?: DecisionPrompt | null; rngState?: number; turnCount?: number;
   previousWinners?: RacerName[];
+  draftState?: { pick: number; startPlayer: number; order: number[]; pool: RacerName[] };
 }
 
 const colors = ['#f20f2b', '#1a76ff', '#9c42ff', '#18a85b', '#ff9f0b', '#ef3c9b'];
@@ -102,7 +104,7 @@ const orderIndex = (state: GameState, racer: RacerState) => state.racers.indexOf
 
 export function createPlayers(mode: GameMode, count = 4): PlayerState[] { return Array.from({ length: count }, (_, i) => ({ id: `player-${i + 1}`, name: mode === 'ai' && i > 0 ? `电脑 ${i}` : `玩家 ${String.fromCharCode(65 + i)}`, color: colors[i], isAi: mode === 'ai' && i > 0, team: [], score: 0 })); }
 export function makeRoomCode() { const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }
-export function createGame(mode: GameMode, locale: Locale): GameState { return { mode, locale, phase: mode === 'online' ? 'room' : 'draft', board: 'Mild Mile', raceNumber: 1, players: createPlayers(mode), racers: [], currentPlayer: 0, currentRacerId: null, finishers: [], raceSelections: {}, usedRacers: [], raceSelectPlayer: 0, mastermindPrediction: null, log: [], roomCode: mode === 'online' ? makeRoomCode() : undefined, connected: mode === 'online' ? 1 : undefined, pendingRoll: null, pendingDecision: null, rngState: 0x1234abcd, turnCount: 0, previousWinners: [] }; }
+export function createGame(mode: GameMode, locale: Locale): GameState { return { version: 0, presentationSeq: 0, mode, locale, phase: mode === 'online' ? 'room' : 'draft', board: 'Mild Mile', raceNumber: 1, players: createPlayers(mode), racers: [], currentPlayer: 0, currentRacerId: null, finishers: [], raceSelections: {}, usedRacers: [], raceSelectPlayer: 0, mastermindPrediction: null, log: [], roomCode: mode === 'online' ? makeRoomCode() : undefined, connected: mode === 'online' ? 1 : undefined, pendingRoll: null, pendingDecision: null, rngState: 0x1234abcd, turnCount: 0, previousWinners: [] }; }
 export function chooseTeam(state: GameState, playerId: string, names: RacerName[]) { const next = clone(state); const p = next.players.find((player) => player.id === playerId); if (p) p.team = names; return next; }
 export function raceSlots(playerCount: number) { return playerCount <= 3 ? 2 : 1; }
 export function beginRace(state: GameState): GameState { return { ...clone(state), phase: 'race-select', racers: [], finishers: [], currentPlayer: 0, currentRacerId: null, raceSelections: {}, raceSelectPlayer: 0, mastermindPrediction: null, pendingRoll: null, pendingDecision: null, board: state.raceNumber % 2 ? 'Mild Mile' : 'Wild Wilds', log: [...state.log, `第 ${state.raceNumber} 场 · ${state.raceNumber % 2 ? '温和大道' : '荒野狂奔'}`, '所有玩家选择本场出战角色。'].slice(-18) }; }
@@ -121,7 +123,7 @@ export function startRace(state: GameState, selections: Record<string, RacerName
 
 export function resolveDecision(input: GameState, choice: RacerName): GameState {
   const state = clone(input); const prompt = state.pendingDecision; if (!prompt || !prompt.choices.includes(choice)) return state; const racer = state.racers.find((item) => item.id === prompt.racerId); if (!racer) return state;
-  racer.power = choice; state.pendingDecision = null; state.log = logLines(state, [`${racerByName(racer.name).zhName} 选择获得 ${racerByName(choice).zhName} 的能力。`]);
+  racer.power = choice; if (choice === 'Sisyphus') racer.chips = 4; state.pendingDecision = null; state.log = logLines(state, [`${racerByName(racer.name).zhName} 选择获得 ${racerByName(choice).zhName} 的能力。`]);
   const nextSpecial = state.racers.find((item) => !item.power && (item.name === 'Egg' || (item.name === 'Twin' && (state.previousWinners?.length ?? 0) > 0)));
   if (nextSpecial) { const choices = nextSpecial.name === 'Egg' ? RACERS.filter((card) => !state.racers.some((item) => item.name === card.name)).slice(0, 3).map((card) => card.name) : (state.previousWinners ?? []); state.pendingDecision = choices.length ? { id: `before-race-${nextSpecial.id}`, kind: nextSpecial.name === 'Egg' ? 'egg' : 'twin', racerId: nextSpecial.id, choices } : null; }
   return state;
@@ -171,6 +173,7 @@ function moveDistance(state: GameState, racer: RacerState, distance: number, lin
   }
   const end = Math.max(0, Math.min(30, cursor)); const passed = activeRacers(state).filter((other) => other.id !== racer.id && (direction > 0 ? other.position > start && other.position < end : direction < 0 ? other.position < start && other.position > end : false)); racer.position = end;
   if (passed.length) lines.push(`${racerByName(racer.name).zhName} 经过 ${passed.map((item) => racerByName(item.name).zhName).join('、')}。`);
+  if (passed.length && racerPower(state, racer) === 'Centaur') passed.forEach((other) => { lines.push(`${racerByName(racer.name).zhName} 踢回 ${racerByName(other.name).zhName} 2 格。`); moveDistance(state, other, -2, lines, 'power', depth + 1); });
   if (passed.some((other) => activeRacers(state).some((item) => item.position === other.position && racerPower(state, item) === 'Banana'))) applyTrip(state, racer, lines);
   const hugeBaby = activeRacers(state).find((item) => item.id !== racer.id && item.position === racer.position && racerPower(state, item) === 'Huge Baby');
   if (hugeBaby && racer.position > 0) { racer.position = Math.max(0, racer.position - 1); trace?.push(racer.position); lines.push(`${racerByName(racer.name).zhName} 被巨婴推回 1 格。`); }
@@ -219,7 +222,12 @@ export function rollTurn(input: GameState, racerId?: string, forcedRoll?: number
 
 export function resolveRoll(input: GameState, choice: TurnChoice = 'none', forcedReroll?: number, predicted?: number): GameState {
   const state = clone(input); const pending = state.pendingRoll; if (!pending) return state; const racer = state.racers.find((item) => item.id === pending.racerId); if (!racer) return state;
-  if (choice === 'magician' && pending.rerollsUsed < 2) { const roll = forcedReroll ?? nextRandom(state); pending.roll = roll; pending.rerollsUsed += 1; racer.lastRoll = roll; state.log = logLines(state, [`${racerByName(racer.name).zhName} 使用魔术师重掷第 ${pending.rerollsUsed} 次，得到 ${roll}。`]); return state; }
+  if ((choice === 'magician' || choice === 'reroll') && pending.rerollsUsed < (choice === 'magician' ? 2 : 1)) {
+    const roll = forcedReroll ?? nextRandom(state); pending.roll = roll; pending.rerollsUsed += 1; racer.lastRoll = roll; const lines = [`${racerByName(racer.name).zhName} ${choice === 'magician' ? '使用魔术师' : '使用骰术师提供的机会'}重掷第 ${pending.rerollsUsed} 次，得到 ${roll}。`];
+    const dicemonger = activeRacers(state).find((item) => item.id !== racer.id && racerPower(state, item) === 'Dicemonger'); if (dicemonger) moveDistance(state, dicemonger, 1, lines, 'power');
+    const scoochCount = (dicemonger ? 1 : 0) + (racerPower(state, racer) === 'Magician' ? 1 : 0); for (let count = 0; count < scoochCount; count += 1) activeRacers(state).filter((item) => item.id !== racer.id && racerPower(state, item) === 'Scoocher').forEach((item) => moveDistance(state, item, 1, lines, 'scooch'));
+    state.log = logLines(state, lines); return state;
+  }
   const lines: string[] = []; const roll = pending.roll; const movementPath: number[] = [racer.position]; state.lastMovePath = undefined; let distance = choice === 'legs' ? mainDistance(state, racer, 5) : mainDistance(state, racer, roll);
   if (choice === 'legs') { racer.lastRoll = null; lines.push(`${racerByName(racer.name).zhName} 使用大长腿，跳过掷骰并进行 5 格主移动。`); }
   if (choice === 'alchemist' && roll <= 2) distance = mainDistance(state, racer, 4);
@@ -231,16 +239,11 @@ export function resolveRoll(input: GameState, choice: TurnChoice = 'none', force
     if (roll === 1 && inchworm) { lines.push(`${racerByName(racer.name).zhName} 掷出 1，被尺蠖截断主移动。`); moveDistance(state, inchworm, 1, lines, 'power'); }
     else {
       const followers = activeRacers(state).filter((item) => item.id !== racer.id && racerPower(state, item) === 'Suckerfish' && item.position === pending.start);
-      followers.forEach((follower) => moveDistance(state, follower, distance, lines, 'power'));
       moveDistance(state, racer, distance, lines, 'main', 0, movementPath);
+      followers.forEach((follower) => moveDistance(state, follower, distance, lines, 'power'));
     }
   }
   if (choice === 'sisyphus' && roll === 6 && (racer.chips ?? 0) >= 0 && racer.position === 0 && movementPath[movementPath.length - 1] !== 0) movementPath.push(0);
-  const others = activeRacers(state).filter((item) => item.id !== racer.id).sort((a, b) => orderIndex(state, a) - orderIndex(state, b));
-  if (choice === 'magician') {
-    const diceMonger = others.find((item) => racerPower(state, item) === 'Dicemonger'); if (diceMonger) moveDistance(state, diceMonger, 1, lines, 'power');
-    const scoochers = others.filter((item) => racerPower(state, item) === 'Scoocher'); scoochers.forEach((item) => moveDistance(state, item, 1, lines, 'power'));
-  }
   const repeat = predicted !== undefined && predicted === roll && racerPower(state, racer) === 'Genius'; if (repeat) lines.push(`${racerByName(racer.name).zhName} 预测正确，获得额外回合。`);
   if (movementPath.length > 1) state.lastMovePath = movementPath;
   state.pendingRoll = null; state.turnCount = (state.turnCount ?? 0) + 1; state.log = logLines(state, lines); return advanceAfterTurn(state, racer, roll, state.log, repeat, pending.start);
@@ -261,15 +264,15 @@ export function abilityActions(state: GameState, racer: RacerState | undefined) 
   if (!racer || racer.eliminated || racer.finished !== null || racer.tripped) return [] as Array<{ id: AbilityActionId; targetIds: string[] }>;
   const active = activeRacers(state).filter((other) => other.id !== racer.id); const same = active.filter((other) => other.position === racer.position); const crowded = active.filter((other) => active.filter((candidate) => candidate.position === other.position).length === 2); const power = racerPower(state, racer);
   const actions: Array<{ id: AbilityActionId; targetIds: string[] }> = [];
-  if (power === 'Alchemist' && state.pendingRoll?.racerId === racer.id && state.pendingRoll.roll <= 2) actions.push({ id: 'alchemist', targetIds: [] }); if (power === 'Legs' && !state.pendingRoll) actions.push({ id: 'legs', targetIds: [] }); if (power === 'Rocket Scientist' && state.pendingRoll?.racerId === racer.id) actions.push({ id: 'rocket', targetIds: [] }); if (power === 'Magician' && state.pendingRoll?.racerId === racer.id && state.pendingRoll.rerollsUsed < 2) actions.push({ id: 'magician', targetIds: [] }); if (power === 'Genius' && !state.pendingRoll) actions.push({ id: 'genius', targetIds: [] }); if (power === 'Sisyphus' && state.pendingRoll?.racerId === racer.id && state.pendingRoll.roll === 6 && (racer.chips ?? 0) > 0) actions.push({ id: 'sisyphus', targetIds: [] });
-  if (!state.pendingRoll) { if (power === 'Copy Cat') { const lead = Math.max(...activeRacers(state).map((item) => item.position)); const leaders = active.filter((item) => item.position === lead); if (leaders.length > 1) actions.push({ id: 'copy-cat', targetIds: leaders.map((item) => item.id) }); } if (power === 'Flip Flop' && active.length) actions.push({ id: 'flip-flop', targetIds: active.map((other) => other.id) }); if (power === 'Hypnotist' && active.length) actions.push({ id: 'hypnotist', targetIds: active.map((other) => other.id) }); if (power === 'Third Wheel' && crowded.length) actions.push({ id: 'third-wheel', targetIds: crowded.map((other) => other.id) }); if (power === 'Cheerleader' && active.length) actions.push({ id: 'cheerleader', targetIds: [] }); if (power === 'Party Animal') actions.push({ id: 'party-animal', targetIds: [] }); if (power === 'Duelist' && same.length) actions.push({ id: 'duelist', targetIds: same.map((other) => other.id) }); }
+  if (power === 'Alchemist' && state.pendingRoll?.racerId === racer.id && state.pendingRoll.roll <= 2) actions.push({ id: 'alchemist', targetIds: [] }); if (power === 'Legs' && !state.pendingRoll) actions.push({ id: 'legs', targetIds: [] }); if (power === 'Rocket Scientist' && state.pendingRoll?.racerId === racer.id) actions.push({ id: 'rocket', targetIds: [] }); if (power === 'Magician' && state.pendingRoll?.racerId === racer.id && state.pendingRoll.rerollsUsed < 2) actions.push({ id: 'magician', targetIds: [] }); if (power !== 'Magician' && hasPower(state, 'Dicemonger') && state.pendingRoll?.racerId === racer.id && state.pendingRoll.rerollsUsed < 1) actions.push({ id: 'reroll', targetIds: [] }); if (power === 'Genius' && !state.pendingRoll) actions.push({ id: 'genius', targetIds: [] }); if (power === 'Sisyphus' && state.pendingRoll?.racerId === racer.id && state.pendingRoll.roll === 6 && (racer.chips ?? 0) > 0) actions.push({ id: 'sisyphus', targetIds: [] });
+  if (!state.pendingRoll) { if (power === 'Copy Cat') { const lead = Math.max(...activeRacers(state).map((item) => item.position)); const leaders = active.filter((item) => item.position === lead); if (leaders.length > 1) actions.push({ id: 'copy-cat', targetIds: leaders.map((item) => item.id) }); } if (power === 'Flip Flop' && active.length) actions.push({ id: 'flip-flop', targetIds: active.map((other) => other.id) }); if (power === 'Hypnotist' && active.length) actions.push({ id: 'hypnotist', targetIds: active.map((other) => other.id) }); if (power === 'Third Wheel' && crowded.length) actions.push({ id: 'third-wheel', targetIds: crowded.map((other) => other.id) }); if (power === 'Cheerleader' && active.length) actions.push({ id: 'cheerleader', targetIds: [] }); if (power === 'Duelist' && same.length) actions.push({ id: 'duelist', targetIds: same.map((other) => other.id) }); }
   return actions;
 }
 
 export function activateAbility(input: GameState, racerId: string, action: AbilityActionId, targetId?: string): GameState {
   const state = clone(input); const racer = state.racers.find((item) => item.id === racerId); if (!racer) return state; const target = state.racers.find((item) => item.id === targetId); const lines: string[] = []; const power = racerPower(state, racer);
   if (action === 'copy-cat' && target) { racer.copyTargetId = target.id; lines.push(`${racerByName(racer.name).zhName} 选择复制 ${racerByName(target.name).zhName} 的能力。`); }
-  if (action === 'flip-flop' && target) { const old = racer.position; racer.position = target.position; target.position = old; lines.push(`${racerByName(racer.name).zhName} 使用翻转，与 ${racerByName(target.name).zhName} 同时交换格子。`); }
+  if (action === 'flip-flop' && target) { const old = racer.position; racer.position = target.position; target.position = old; lines.push(`${racerByName(racer.name).zhName} 使用翻转，与 ${racerByName(target.name).zhName} 同时交换格子，并跳过主移动。`); state.log = logLines(state, lines); return nextTurn(state, racer); }
   if (action === 'hypnotist' && target) { target.position = racer.position; lines.push(`${racerByName(racer.name).zhName} 催眠 ${racerByName(target.name).zhName}，传送到自己所在格。`); }
   if (action === 'third-wheel' && target) { racer.position = target.position; lines.push(`${racerByName(racer.name).zhName} 使用电灯泡，传送到双人格。`); }
   if (action === 'cheerleader') { const last = Math.min(...activeRacers(state).map((item) => item.position)); activeRacers(state).filter((item) => item.position === last && item.id !== racer.id).forEach((item) => moveDistance(state, item, 2, lines, 'power')); moveDistance(state, racer, 1, lines, 'power'); }
