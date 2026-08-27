@@ -41,7 +41,8 @@ const assetSlug = (value: string) => value.toLowerCase().replace(/\.[^.]+$/, '')
 const cardSlug = (name: RacerName) => assetSlug(name);
 const bytesToDataUrl = (data: Uint8Array, mime: string) => { let binary = ''; for (let index = 0; index < data.length; index += 0x8000) binary += String.fromCharCode(...data.subarray(index, index + 0x8000)); return `data:${mime};base64,${btoa(binary)}`; };
 const loadStoredAssetPack = (): AssetPack => { if (typeof window === 'undefined') return {}; try { const stored = window.localStorage.getItem(assetStorageKey); return stored ? JSON.parse(stored) as AssetPack : {}; } catch { return {}; } };
-const draftOrder = (playerCount: number, startPlayer: number) => { const forward = Array.from({ length: playerCount }, (_, index) => (startPlayer + index) % playerCount); return [...forward, ...[...forward].reverse()]; };
+const snakeOrder = (playerCount: number, startPlayer: number) => { const forward = Array.from({ length: playerCount }, (_, index) => (startPlayer + index) % playerCount); return [...forward, ...[...forward].reverse()]; };
+const draftOrder = (playerCount: number, startPlayer: number) => [...snakeOrder(playerCount, startPlayer), ...snakeOrder(playerCount, (startPlayer + 1) % playerCount)];
 const shuffleNames = (names: RacerName[]) => [...names].sort(() => Math.random() - 0.5);
 const drawDraftPool = (playerCount: number, used: RacerName[] = []) => { const usedSet = new Set(used); return shuffleNames(RACERS.filter((racer) => !usedSet.has(racer.name)).map((racer) => racer.name)).slice(0, playerCount * 2); };
 
