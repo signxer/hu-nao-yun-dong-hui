@@ -3,6 +3,7 @@ import {
   RACERS,
   beginRace,
   createGame,
+  nextRace,
   resolveRoll,
   rollTurn,
   startRace,
@@ -95,6 +96,44 @@ assert.equal(RACERS.length, 36, 'all 36 racer cards must be registered');
   const next = takeTurn(state, racer(state).id, { forcedRoll: 4 });
   assert.equal(racer(next).position, 4, 'Gunk does not reduce its own move');
   assert.equal(next.players.length, 4);
+}
+
+{
+  const state = race(['Alchemist', 'Banana', 'Blimp', 'Hare'], 'Wild Wilds');
+  state.racers[1].position = 3;
+  state.racers[2].position = 3;
+  state.racers[3].position = 3;
+  const next = takeTurn(state, racer(state).id, { forcedRoll: 1 });
+  assert.equal(racer(next).position, 1, 'wild star keeps the racer on the star space');
+  assert.equal(next.players[0].score, 1, 'landing on a star awards one point immediately');
+  assert.match(next.log.at(-1) ?? '', /星星/);
+}
+
+{
+  const state = race(['Alchemist', 'Banana', 'Blimp', 'Hare'], 'Wild Wilds');
+  state.racers[0].position = 20;
+  const next = takeTurn(state, racer(state).id, { forcedRoll: 4 });
+  assert.equal(racer(next).position, 22, 'a -2 arrow applies after the four-space main move');
+  assert.deepEqual(next.lastMovePath, [20, 21, 22, 23, 24, 23, 22], 'movement replay contains forward steps then each backward arrow step');
+}
+
+{
+  const state = createGame('local', 'zh');
+  const teams: RacerName[][] = [
+    ['Alchemist', 'Banana', 'Blimp', 'Hare'],
+    ['Coach', 'Gunk', 'Legs', 'Magician'],
+    ['Egg', 'Genius', 'Hypnotist', 'Romantic'],
+    ['Stickler', 'Suckerfish', 'Twin', 'Third Wheel'],
+  ];
+  state.players = state.players.map((player, index) => ({ ...player, team: teams[index] }));
+  state.raceNumber = 3;
+  state.phase = 'result';
+  state.usedRacers = teams.flatMap((team) => team.slice(0, 3));
+  state.racers = [{ id: 'player-1-0', name: 'Alchemist', ownerId: 'player-1', position: 30, score: 0, tripped: false, eliminated: false, finished: 1, lastRoll: 6 }];
+  state.finishers = ['player-1-0'];
+  const finalRace = nextRace(state);
+  assert.equal(finalRace.phase, 'race', 'the final race skips forced selection when only the remaining cards are available');
+  assert.deepEqual(finalRace.racers.map((item) => item.name), teams.map((team) => team[3]));
 }
 
 console.log('game rules smoke tests passed');

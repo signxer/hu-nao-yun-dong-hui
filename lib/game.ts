@@ -27,6 +27,7 @@ export interface GameState {
   board: BoardName; raceNumber: number; players: PlayerState[]; racers: RacerState[]; currentPlayer: number;
   currentRacerId?: string | null; finishers: string[]; raceSelections: Record<string, RacerName[]>;
   usedRacers?: RacerName[];
+  lastMovePath?: number[];
   raceSelectPlayer: number; mastermindPrediction: { mastermindId: string; targetId: string } | null;
   log: string[]; roomCode?: string; connected?: number; pendingRoll?: PendingRoll | null;
   pendingDecision?: DecisionPrompt | null; rngState?: number; turnCount?: number;
@@ -143,28 +144,38 @@ function finishRacer(state: GameState, racer: RacerState, lines: string[]) {
   if (prediction?.targetId === racer.id) { if (prediction.mastermindId === racer.id) { const p = state.players.find((item) => item.id === racer.ownerId); if (p) p.score += 2; state.finishers.push(racer.id); lines.push(`${racerByName(racer.name).zhName} 预测自己获胜，同时获得第 2 名分数。`); } else { const mastermind = state.racers.find((item) => item.id === prediction.mastermindId && !item.eliminated && item.finished === null); if (mastermind) { mastermind.finished = 2; state.finishers.push(mastermind.id); const p = state.players.find((item) => item.id === mastermind.ownerId); if (p) p.score += 2; lines.push(`${racerByName(mastermind.name).zhName} 的预言命中，获得第 2 名。`); } } }
 }
 
-function applyWildStop(state: GameState, racer: RacerState, lines: string[]) {
+function applyWildStop(state: GameState, racer: RacerState, lines: string[], trace?: number[]) {
   if (state.board !== 'Wild Wilds' || racer.position >= 30) return; const effect = wildEffects[racer.position]; if (!effect) return;
-  if (effect === 'trip') applyTrip(state, racer, lines); if (effect === 'star') { racer.score += 1; lines.push(`${racerByName(racer.name).zhName} 获得 1 个星星筹码。`); }
-  if (effect.startsWith('+') || effect.startsWith('-')) { const delta = Number(effect); racer.position = Math.max(0, Math.min(30, racer.position + delta)); lines.push(`${racerByName(racer.name).zhName} 触发箭头，移动 ${delta > 0 ? '+' : ''}${delta} 格。`); }
+  if (effect === 'trip') applyTrip(state, racer, lines); if (effect === 'star') { const owner = state.players.find((player) => player.id === racer.ownerId); if (owner) owner.score += 1; lines.push(`${racerByName(racer.name).zhName} 获得 1 分星星。`); }
+  if (effect.startsWith('+') || effect.startsWith('-')) {
+    const delta = Number(effect);
+    const direction = Math.sign(delta);
+    const start = racer.position;
+    for (let step = 1; step <= Math.abs(delta); step += 1) {
+      const next = Math.max(0, Math.min(30, start + direction * step));
+      if (next !== racer.position) trace?.push(next);
+      racer.position = next;
+    }
+    lines.push(`${racerByName(racer.name).zhName} 触发箭头，移动 ${delta > 0 ? '+' : ''}${delta} 格。`);
+  }
 }
 
-function moveDistance(state: GameState, racer: RacerState, distance: number, lines: string[], source: 'main' | 'power' | 'warp' | 'scooch' = 'power', depth = 0) {
+function moveDistance(state: GameState, racer: RacerState, distance: number, lines: string[], source: 'main' | 'power' | 'warp' | 'scooch' = 'power', depth = 0, trace?: number[]) {
   if (depth > 24 || racer.eliminated || racer.finished !== null || distance === 0) return;
   if (source === 'power') activeRacers(state).filter((item) => item.id !== racer.id && racerPower(state, item) === 'Scoocher').forEach((item) => moveDistance(state, item, 1, lines, 'scooch', depth + 1));
   const start = racer.position; const direction = Math.sign(distance); const requested = Math.abs(distance); const stickler = hasPower(state, 'Stickler', racer.id);
   if (direction > 0 && stickler && start + requested > 30) { lines.push(`${racerByName(racer.name).zhName} 受到较真者影响，移动会超过终点，本次不移动。`); return; }
   let steps = 0; let cursor = start;
   while (steps < requested && cursor < 30 && cursor > 0 || steps < requested && cursor < 30) {
-    cursor += direction; if (cursor < 0) cursor = 0; const occupied = activeAt(state, cursor, racer.id).length > 0; if (!(racerPower(state, racer) === 'Leaptoad' && occupied)) steps += 1; if (cursor === 30 || cursor === 0) break; if (Math.abs(cursor - start) > 60) break;
+    cursor += direction; if (cursor < 0) cursor = 0; const occupied = activeAt(state, cursor, racer.id).length > 0; if (!(racerPower(state, racer) === 'Leaptoad' && occupied)) { steps += 1; trace?.push(cursor); } if (cursor === 30 || cursor === 0) break; if (Math.abs(cursor - start) > 60) break;
   }
   const end = Math.max(0, Math.min(30, cursor)); const passed = activeRacers(state).filter((other) => other.id !== racer.id && (direction > 0 ? other.position > start && other.position < end : direction < 0 ? other.position < start && other.position > end : false)); racer.position = end;
   if (passed.length) lines.push(`${racerByName(racer.name).zhName} 经过 ${passed.map((item) => racerByName(item.name).zhName).join('、')}。`);
   if (passed.some((other) => activeRacers(state).some((item) => item.position === other.position && racerPower(state, item) === 'Banana'))) applyTrip(state, racer, lines);
   const hugeBaby = activeRacers(state).find((item) => item.id !== racer.id && item.position === racer.position && racerPower(state, item) === 'Huge Baby');
-  if (hugeBaby && racer.position > 0) { racer.position = Math.max(0, racer.position - 1); lines.push(`${racerByName(racer.name).zhName} 被巨婴推回 1 格。`); }
+  if (hugeBaby && racer.position > 0) { racer.position = Math.max(0, racer.position - 1); trace?.push(racer.position); lines.push(`${racerByName(racer.name).zhName} 被巨婴推回 1 格。`); }
   if (racerPower(state, racer) === 'Huge Baby') activeAt(state, racer.position, racer.id).forEach((other) => { other.position = Math.max(0, racer.position - 1); lines.push(`${racerByName(other.name).zhName} 被巨婴推回 1 格。`); if (racerPower(state, other) === 'Banana') applyTrip(state, racer, lines); });
-  applyWildStop(state, racer, lines); finishRacer(state, racer, lines);
+  applyWildStop(state, racer, lines, trace); finishRacer(state, racer, lines);
   const same = activeAt(state, racer.position, racer.id);
   if (racerPower(state, racer) === 'M.O.U.T.H.' && same.length === 1) { same[0].eliminated = true; lines.push(`${racerByName(same[0].name).zhName} 被大嘴淘汰。`); }
   if (same.length && racerPower(state, racer) === 'Baba Yaga') same.forEach((item) => applyTrip(state, item, lines));
@@ -209,7 +220,7 @@ export function rollTurn(input: GameState, racerId?: string, forcedRoll?: number
 export function resolveRoll(input: GameState, choice: TurnChoice = 'none', forcedReroll?: number, predicted?: number): GameState {
   const state = clone(input); const pending = state.pendingRoll; if (!pending) return state; const racer = state.racers.find((item) => item.id === pending.racerId); if (!racer) return state;
   if (choice === 'magician' && pending.rerollsUsed < 2) { const roll = forcedReroll ?? nextRandom(state); pending.roll = roll; pending.rerollsUsed += 1; racer.lastRoll = roll; state.log = logLines(state, [`${racerByName(racer.name).zhName} 使用魔术师重掷第 ${pending.rerollsUsed} 次，得到 ${roll}。`]); return state; }
-  const lines: string[] = []; const roll = pending.roll; let distance = choice === 'legs' ? mainDistance(state, racer, 5) : mainDistance(state, racer, roll);
+  const lines: string[] = []; const roll = pending.roll; const movementPath: number[] = [racer.position]; state.lastMovePath = undefined; let distance = choice === 'legs' ? mainDistance(state, racer, 5) : mainDistance(state, racer, roll);
   if (choice === 'legs') { racer.lastRoll = null; lines.push(`${racerByName(racer.name).zhName} 使用大长腿，跳过掷骰并进行 5 格主移动。`); }
   if (choice === 'alchemist' && roll <= 2) distance = mainDistance(state, racer, 4);
   if (choice === 'rocket') { distance = mainDistance(state, racer, roll * 2); applyTrip(state, racer, lines); lines.push(`${racerByName(racer.name).zhName} 将主移动翻倍。`); }
@@ -221,15 +232,17 @@ export function resolveRoll(input: GameState, choice: TurnChoice = 'none', force
     else {
       const followers = activeRacers(state).filter((item) => item.id !== racer.id && racerPower(state, item) === 'Suckerfish' && item.position === pending.start);
       followers.forEach((follower) => moveDistance(state, follower, distance, lines, 'power'));
-      moveDistance(state, racer, distance, lines, 'main');
+      moveDistance(state, racer, distance, lines, 'main', 0, movementPath);
     }
   }
+  if (choice === 'sisyphus' && roll === 6 && (racer.chips ?? 0) >= 0 && racer.position === 0 && movementPath[movementPath.length - 1] !== 0) movementPath.push(0);
   const others = activeRacers(state).filter((item) => item.id !== racer.id).sort((a, b) => orderIndex(state, a) - orderIndex(state, b));
   if (choice === 'magician') {
     const diceMonger = others.find((item) => racerPower(state, item) === 'Dicemonger'); if (diceMonger) moveDistance(state, diceMonger, 1, lines, 'power');
     const scoochers = others.filter((item) => racerPower(state, item) === 'Scoocher'); scoochers.forEach((item) => moveDistance(state, item, 1, lines, 'power'));
   }
   const repeat = predicted !== undefined && predicted === roll && racerPower(state, racer) === 'Genius'; if (repeat) lines.push(`${racerByName(racer.name).zhName} 预测正确，获得额外回合。`);
+  if (movementPath.length > 1) state.lastMovePath = movementPath;
   state.pendingRoll = null; state.turnCount = (state.turnCount ?? 0) + 1; state.log = logLines(state, lines); return advanceAfterTurn(state, racer, roll, state.log, repeat, pending.start);
 }
 
@@ -266,4 +279,25 @@ export function activateAbility(input: GameState, racerId: string, action: Abili
   return { ...state, log: logLines(state, lines) };
 }
 
-export function nextRace(state: GameState): GameState { if (state.raceNumber >= 4) return { ...clone(state), phase: 'game-over' }; const winner = state.racers.find((racer) => racer.id === state.finishers[0]); const next = { ...clone(state), raceNumber: state.raceNumber + 1, previousWinners: winner ? [winner.power ?? winner.name] : state.previousWinners }; return beginRace(next); }
+export function nextRace(state: GameState): GameState {
+  if (state.raceNumber >= 4) return { ...clone(state), phase: 'game-over' };
+  const winner = state.racers.find((racer) => racer.id === state.finishers[0]);
+  const next = { ...clone(state), raceNumber: state.raceNumber + 1, previousWinners: winner ? [winner.power ?? winner.name] : state.previousWinners };
+  const selecting = beginRace(next);
+
+  // By the final race, the snake draft has already used every other team card.
+  // There is no meaningful choice left, so go directly to the race with the
+  // remaining slot(s) instead of showing an empty/forced selection screen.
+  if (selecting.raceNumber === 4) {
+    const slots = raceSlots(selecting.players.length);
+    const used = new Set(selecting.usedRacers ?? []);
+    const selections = Object.fromEntries(selecting.players.map((player) => [
+      player.id,
+      player.team.filter((name) => !used.has(name)).slice(0, slots),
+    ])) as Record<string, RacerName[]>;
+    if (selecting.players.every((player) => (selections[player.id] ?? []).length === slots)) {
+      return startRace(selecting, selections);
+    }
+  }
+  return selecting;
+}
