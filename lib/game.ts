@@ -116,7 +116,7 @@ export function activateAbility(state: GameState, racerId: string, action: Abili
   return { ...state, racers, log: addLog(state, lines) };
 }
 
-export function takeTurn(state: GameState, racerId?: string, options?: { ability?: AbilityActionId; prediction?: number }): GameState {
+export function takeTurn(state: GameState, racerId?: string, options?: { ability?: AbilityActionId; prediction?: number; rerollFrom?: number }): GameState {
   if (state.phase !== 'race') return state;
   const actor = racerId ?? state.players[state.currentPlayer]?.id; const racer = state.racers.find((r) => r.ownerId === actor && !r.eliminated && r.finished === null); if (!racer) return { ...state, currentPlayer: nextPlayerIndex(state) };
   const card = racerByName(racer.name); const lines: string[] = [];
@@ -124,7 +124,7 @@ export function takeTurn(state: GameState, racerId?: string, options?: { ability
     racer.tripped = false; racer.lastRoll = null; lines.push(`${card.zhName} 被绊倒，跳过这次主移动。`);
     const next = { ...state, currentPlayer: nextPlayerIndex(state, racer), log: addLog(state, lines) }; if (state.finishers.length >= 2 || activeRacers(state).length <= 1) return { ...next, phase: 'result' }; return next;
   }
-  const skipRoll = options?.ability === 'legs'; const roll = skipRoll ? 5 : Math.floor(Math.random() * 6) + 1; racer.lastRoll = skipRoll ? null : roll; let distance = roll;
+  const skipRoll = options?.ability === 'legs'; const roll = skipRoll ? 5 : options?.rerollFrom ?? Math.floor(Math.random() * 6) + 1; racer.lastRoll = skipRoll ? null : roll; let distance = roll;
   const start = racer.position; const aloneInLead = racer.position === Math.max(...activeRacers(state).map((item) => item.position)) && activeRacers(state).filter((item) => item.position === racer.position).length === 1;
   if (racer.name === 'Alchemist' && roll <= 2) distance = 4;
   if (racer.name === 'Blimp') distance += start < 12 ? 3 : -1;
