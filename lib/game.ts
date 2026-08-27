@@ -26,6 +26,7 @@ export interface GameState {
   mode: GameMode; locale: Locale; phase: 'home' | 'draft' | 'race-select' | 'race' | 'result' | 'game-over' | 'room';
   board: BoardName; raceNumber: number; players: PlayerState[]; racers: RacerState[]; currentPlayer: number;
   currentRacerId?: string | null; finishers: string[]; raceSelections: Record<string, RacerName[]>;
+  usedRacers?: RacerName[];
   raceSelectPlayer: number; mastermindPrediction: { mastermindId: string; targetId: string } | null;
   log: string[]; roomCode?: string; connected?: number; pendingRoll?: PendingRoll | null;
   pendingDecision?: DecisionPrompt | null; rngState?: number; turnCount?: number;
@@ -100,7 +101,7 @@ const orderIndex = (state: GameState, racer: RacerState) => state.racers.indexOf
 
 export function createPlayers(mode: GameMode, count = 4): PlayerState[] { return Array.from({ length: count }, (_, i) => ({ id: `player-${i + 1}`, name: mode === 'ai' && i > 0 ? `电脑 ${i}` : `玩家 ${String.fromCharCode(65 + i)}`, color: colors[i], isAi: mode === 'ai' && i > 0, team: [], score: 0 })); }
 export function makeRoomCode() { const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }
-export function createGame(mode: GameMode, locale: Locale): GameState { return { mode, locale, phase: mode === 'online' ? 'room' : 'draft', board: 'Mild Mile', raceNumber: 1, players: createPlayers(mode), racers: [], currentPlayer: 0, currentRacerId: null, finishers: [], raceSelections: {}, raceSelectPlayer: 0, mastermindPrediction: null, log: [], roomCode: mode === 'online' ? makeRoomCode() : undefined, connected: mode === 'online' ? 1 : undefined, pendingRoll: null, pendingDecision: null, rngState: 0x1234abcd, turnCount: 0, previousWinners: [] }; }
+export function createGame(mode: GameMode, locale: Locale): GameState { return { mode, locale, phase: mode === 'online' ? 'room' : 'draft', board: 'Mild Mile', raceNumber: 1, players: createPlayers(mode), racers: [], currentPlayer: 0, currentRacerId: null, finishers: [], raceSelections: {}, usedRacers: [], raceSelectPlayer: 0, mastermindPrediction: null, log: [], roomCode: mode === 'online' ? makeRoomCode() : undefined, connected: mode === 'online' ? 1 : undefined, pendingRoll: null, pendingDecision: null, rngState: 0x1234abcd, turnCount: 0, previousWinners: [] }; }
 export function chooseTeam(state: GameState, playerId: string, names: RacerName[]) { const next = clone(state); const p = next.players.find((player) => player.id === playerId); if (p) p.team = names; return next; }
 export function raceSlots(playerCount: number) { return playerCount <= 3 ? 2 : 1; }
 export function beginRace(state: GameState): GameState { return { ...clone(state), phase: 'race-select', racers: [], finishers: [], currentPlayer: 0, currentRacerId: null, raceSelections: {}, raceSelectPlayer: 0, mastermindPrediction: null, pendingRoll: null, pendingDecision: null, board: state.raceNumber % 2 ? 'Mild Mile' : 'Wild Wilds', log: [...state.log, `第 ${state.raceNumber} 场 · ${state.raceNumber % 2 ? '温和大道' : '荒野狂奔'}`, '所有玩家选择本场出战角色。'].slice(-18) }; }
@@ -109,6 +110,7 @@ function beforeRacePower(state: GameState, racer: RacerState): RacerState { cons
 
 export function startRace(state: GameState, selections: Record<string, RacerName[]>): GameState {
   const next = clone(state); const slots = raceSlots(next.players.length);
+  next.usedRacers = [...new Set([...(next.usedRacers ?? []), ...Object.values(selections).flat()])];
   next.racers = next.players.flatMap((player) => (selections[player.id] ?? player.team.slice(0, slots)).slice(0, slots).map((name, index) => beforeRacePower(next, { id: `${player.id}-${index}`, name, ownerId: player.id, position: 0, score: 0, tripped: false, eliminated: false, finished: null, lastRoll: null })));
   next.phase = 'race'; next.raceSelections = selections; next.finishers = []; next.currentPlayer = 0; next.currentRacerId = next.racers[0]?.id ?? null; next.pendingRoll = null; next.pendingDecision = null;
   const mastermind = next.racers.find((r) => racerPower(next, r) === 'Mastermind'); const special = next.racers.find((r) => r.name === 'Egg' || (r.name === 'Twin' && (next.previousWinners?.length ?? 0) > 0)); next.log = logLines(next, ['角色已揭示，开始第一个回合。']); if (mastermind) next.log = logLines(next, ['阴谋家将在第一个回合开始时进行预言。']);

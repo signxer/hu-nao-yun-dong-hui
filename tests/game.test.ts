@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   RACERS,
+  beginRace,
   createGame,
   resolveRoll,
   rollTurn,
@@ -18,6 +19,13 @@ const race = (value: RacerName[], board: GameState['board'] = 'Mild Mile') => {
 const racer = (state: GameState, index = 0) => state.racers[index];
 
 assert.equal(RACERS.length, 36, 'all 36 racer cards must be registered');
+
+{
+  const first = race(['Alchemist', 'Coach', 'Banana', 'Blimp']);
+  assert.deepEqual(first.usedRacers, ['Alchemist', 'Coach', 'Banana', 'Blimp']);
+  const next = beginRace({ ...first, raceNumber: 2 });
+  assert.equal(next.usedRacers?.includes('Alchemist'), true, 'racers used in race one remain unavailable');
+}
 
 {
   const state = race(['Alchemist', 'Coach', 'Banana', 'Blimp']);

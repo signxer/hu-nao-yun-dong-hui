@@ -70,6 +70,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .draft-shell { height: calc(100dvh - 64px); padding-bottom: 124px; overflow: auto; scrollbar-width: none; }
 .section-heading, .race-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 20px; }
 .section-heading h1, .race-heading h1, .result-shell h1 { margin: 0; max-width: 760px; font-size: clamp(38px, 5vw, 72px); line-height: .84; letter-spacing: -.09em; }
+.race-used-note { display: block; margin-top: 8px; color: var(--red); font-size: 10px; font-weight: 900; }
 .draft-count { display: flex; align-items: flex-end; gap: 7px; }
 .draft-count strong { font-size: 62px; line-height: .72; letter-spacing: -.1em; }
 .draft-count span { font-size: 11px; line-height: 1; color: #82767b; }
