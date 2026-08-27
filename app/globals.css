@@ -77,7 +77,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .racer-card.is-selected { border: 2px solid var(--accent); box-shadow: 5px 5px 0 var(--accent); transform: translateY(-5px); }
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; min-height: 55px; }
 .card-index { font-size: 10px; font-weight: 900; color: #9a8e92; }
-.card-owner-tag { display: inline-flex; align-items: center; min-height: 17px; padding: 3px 6px; color: #fff; font-size: 9px; font-weight: 1000; letter-spacing: .03em; }
+.card-owner-tag { position: relative; display: inline-flex; align-items: center; min-height: 17px; padding: 3px 7px; border-radius: 999px; color: #fff; font-size: 9px; font-weight: 1000; letter-spacing: .03em; line-height: 1; white-space: nowrap; }
+.card-owner-tag::after { content: ''; position: absolute; left: 11px; bottom: -5px; width: 10px; height: 7px; background: inherit; clip-path: polygon(0 0, 100% 0, 34% 100%); }
 .card-title { margin-top: 6px; font-size: 18px; font-weight: 1000; letter-spacing: -.06em; }
 .card-tagline { min-height: 27px; margin-top: 5px; font-size: 10px; line-height: 1.05; color: #776c71; }
 .card-ability { margin-top: 14px; padding-top: 9px; border-top: 2px solid var(--accent); font-size: 11px; line-height: 1.14; font-weight: 800; }
@@ -91,7 +92,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .assignment-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
 .assignment-heading small, .assignment-empty { color: #8a7e83; font-size: 9px; font-weight: 900; }
 .assignment-list { display: flex; flex-wrap: wrap; gap: 6px; }
-.assignment-card { display: flex; align-items: center; gap: 5px; min-width: 0; padding: 4px 5px; background: #f9f5ef; color: var(--ink); font-size: 9px; font-weight: 900; }
+.assignment-card { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 0; padding: 5px; background: #f9f5ef; color: var(--ink); font-size: 9px; font-weight: 900; }
+.assignment-card .card-owner-tag { max-width: 100%; padding: 2px 5px; font-size: 7px; }
+.assignment-card .card-owner-tag::after { left: 8px; bottom: -4px; width: 8px; height: 6px; }
 .assignment-card span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .draft-bar { position: sticky; bottom: 0; display: flex; justify-content: space-between; align-items: center; margin-top: 28px; padding: 14px 0; border-top: 1px solid #d9d0c7; background: linear-gradient(transparent, var(--paper) 25%); font-size: 11px; color: #7b7176; }
 .race-shell { height: calc(100dvh - 64px); min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 34px; padding-top: 28px; padding-bottom: 28px; overflow: hidden; }
