@@ -70,10 +70,10 @@ function Card({ card, selected, onClick, locale, assetUrl, onSound }: { card: Ra
 const cells = Array.from({ length: 31 }, (_, position) => {
   if (position === 0) return { x: 30, y: 40, w: 150, h: 64 };
   if (position <= 12) return { x: 180 + (position - 1) * 70, y: 40, w: 70, h: 64 };
-  if (position <= 15) return { x: 950, y: 104 + (position - 13) * 80, w: 70, h: 80 };
-  if (position <= 28) return { x: 880 - (position - 16) * 70, y: 344, w: 70, h: 64 };
-  if (position === 29) return { x: 30, y: 284, w: 80, h: 60 };
-  return { x: 30, y: 224, w: 80, h: 60 };
+  if (position <= 15) return { x: 950, y: 104 + (position - 13) * 64, w: 70, h: 64 };
+  if (position === 16) return { x: 880, y: 232, w: 70, h: 64 };
+  if (position <= 29) return { x: 816 - (position - 17) * 64, y: 232, w: 64, h: 64 };
+  return { x: 48, y: 168, w: 64, h: 64 };
 });
 const spaceColors = ['#6ab8e5', '#f1b62a', '#56a94c', '#55a4e0', '#f05a21', '#e86ccf'];
 const effectLabel: Record<string, [string, string]> = { star: ['★', '★'], trip: ['绊倒', 'TRIP'], '+1': ['+1', '+1'], '+2': ['+2', '+2'], '+3': ['+3', '+3'], '-2': ['−2', '−2'], '-4': ['−4', '−4'] };
