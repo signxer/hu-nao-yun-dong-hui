@@ -29,7 +29,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .text-button, .lang-button, .sound-button { border: 0; padding: 8px 0; color: inherit; background: transparent; font-size: 12px; font-weight: 900; }
 .sound-button { color: #6e6268; }
 .sound-button:hover, .text-button:hover, .lang-button:hover { color: var(--red); }
-.exit-button { border: 1px solid #b9aeb2; border-radius: 999px; padding: 7px 10px; color: #7a6d73; background: transparent; font-size: 10px; font-weight: 900; letter-spacing: .04em; transition: color 150ms ease, border-color 150ms ease, transform 150ms var(--ease-out); }
+.exit-button { border: 1px solid #b9aeb2; border-radius: 999px; padding: 7px 10px; color: #7a6d73; background: transparent; font-size: 10px; font-weight: 900; letter-spacing: .04em; text-decoration: none; transition: color 150ms ease, border-color 150ms ease, transform 150ms var(--ease-out); }
 .exit-button:hover { border-color: var(--red); color: var(--red); transform: translateY(-1px); }
 .keyboard-hint { color: #867a7e; font-size: 10px; font-weight: 800; }
 .asset-panel { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 34px; padding: 15px 16px; border: 1px dashed #c8bbb3; background: rgba(255, 255, 255, .38); }
