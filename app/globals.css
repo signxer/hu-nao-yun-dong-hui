@@ -1,3 +1,4 @@
+@import url("https://fontsapi.zeoseven.com/146/main/result.css");
 @import 'tailwindcss';
 
 /* WenYuan Rounded SC, bundled under SIL Open Font License 1.1. */
@@ -6,7 +7,7 @@
 :root { --ink: #171316; --paper: #f5f1e9; --red: #f33b26; --pink: #ef3c9b; --yellow: #f8d90a; --blue: #6db7db; --green: #48a847; --purple: #8247ae; --motion-press: 120ms; --motion-ui: 180ms; --motion-panel: 240ms; --motion-step: 150ms; --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); }
 * { box-sizing: border-box; }
 html, body { min-height: 100%; overflow: hidden; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'WenYuan Rounded SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-synthesis: weight style; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: "JiangChengLvDongYuan", 'WenYuan Rounded SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-weight: normal; font-synthesis: weight style; }
 button { font: inherit; cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: .45; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
@@ -354,7 +355,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 
 /* 3D party-toy visual system */
 :root { --ink: #29243f; --paper: #fff7e9; --red: #ff5d68; --pink: #ff6fbe; --yellow: #ffd84d; --blue: #67c9f6; --green: #63d89e; --purple: #8b6cff; --toy-shadow: #4d3b7b; --toy-line: rgba(52, 43, 82, .18); }
-body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%), linear-gradient(145deg, #fff9ee, #f8efff); font-family: "Arial Rounded MT Bold", "Avenir Next", Arial, sans-serif; }
+body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%), linear-gradient(145deg, #fff9ee, #f8efff); }
 .home-shell, .app-shell { background: radial-gradient(circle at 10% 12%, rgba(255,255,255,.95), transparent 25%), linear-gradient(145deg, #fff8e9 0%, #fff2f5 48%, #f2eeff 100%); }
 .home-left::before, .app-shell::before { content: ''; position: fixed; z-index: 0; width: 180px; height: 180px; left: -70px; bottom: -80px; border-radius: 50%; background: rgba(103,201,246,.18); pointer-events: none; }
 .home-left > *, .app-shell > * { position: relative; z-index: 1; }
