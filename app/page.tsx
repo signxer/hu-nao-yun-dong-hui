@@ -171,9 +171,9 @@ const spaceColors = ['#6ab8e5', '#f1b62a', '#56a94c', '#55a4e0', '#f05a21', '#e8
 const effectLabel: Record<string, [string, string]> = { star: ['★', '★'], trip: ['绊倒', 'TRIP'], '+1': ['+1', '+1'], '+2': ['+2', '+2'], '+3': ['+3', '+3'], '-2': ['−2', '−2'], '-4': ['−4', '−4'] };
 const cornerCellPath = (cell: { x: number; y: number; w: number; h: number }, position: number) => {
   const radius = 13;
-  const topLeft = position === 0;
-  const topRight = position === 12;
-  const bottomRight = position === 15;
+  const topLeft = position === 0 || position === 30;
+  const topRight = position === 12 || position === 30;
+  const bottomRight = position === 0 || position === 15;
   const bottomLeft = position === 29;
   const { x, y, w, h } = cell;
   return `M ${x + (topLeft ? radius : 0)} ${y} H ${x + w - (topRight ? radius : 0)} ${topRight ? `Q ${x + w} ${y} ${x + w} ${y + radius}` : ''} V ${y + h - (bottomRight ? radius : 0)} ${bottomRight ? `Q ${x + w} ${y + h} ${x + w - radius} ${y + h}` : ''} H ${x + (bottomLeft ? radius : 0)} ${bottomLeft ? `Q ${x} ${y + h} ${x} ${y + h - radius}` : ''} V ${y + (topLeft ? radius : 0)} ${topLeft ? `Q ${x} ${y} ${x + radius} ${y}` : ''} Z`;
