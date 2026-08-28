@@ -460,3 +460,15 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .connection-chip.is-disconnected .ui-icon { color: var(--red); }
 .connection-chip.is-connecting .ui-icon { color: var(--yellow); }
 .connection-chip.is-connected .ui-icon { color: var(--green); }
+.race-side { min-width: 0; }
+.side-block { min-width: 0; padding: 18px 18px 22px; border-radius: 22px; }
+.side-block .eyebrow { margin-bottom: 14px; }
+.score-row { min-width: 0; }
+.score-row > span:not(.score-dot) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ability-card { min-width: 0; }
+.ability-card > div { min-width: 0; }
+.ability-card span { overflow-wrap: anywhere; }
+.event-log { min-width: 0; margin: 0 -4px; padding: 0 4px; }
+.event-log p { min-width: 0; }
+.event-log p span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.board-cell { filter: drop-shadow(0 2px 0 rgba(40, 29, 67, .12)); }
