@@ -475,7 +475,7 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .home-right { justify-content: flex-start; padding-top: clamp(42px, 7vh, 76px); }
 .poster-number { display: none; }
 .exit-overlay { z-index: 220; background: rgba(38, 28, 61, .66); }
-.exit-overlay { pointer-events: auto; }
+.app-shell > .exit-overlay { position: fixed; inset: 0; z-index: 220; pointer-events: auto; }
 .exit-button { position: relative; z-index: 2; cursor: pointer; }
 .exit-card { position: relative; overflow: hidden; width: min(520px, calc(100vw - 36px)); padding: 34px 34px 30px; border: 3px solid #fff; border-radius: 30px; background: linear-gradient(145deg, #fffdfa 0%, #fff0e8 100%); box-shadow: 0 12px 0 var(--toy-shadow), 0 26px 56px rgba(27, 18, 47, .35); }
 .exit-card::before { content: ''; position: absolute; top: -56px; right: -34px; width: 150px; height: 150px; border: 18px solid rgba(139, 108, 255, .16); border-radius: 50%; }
