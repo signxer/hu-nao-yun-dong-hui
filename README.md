@@ -37,3 +37,5 @@ npm run worker:check
 本项目是同人规则原型，并不代表获得商业发行授权。默认角色头像、界面、程序化音效与音乐均为本项目原创；桌游名称、角色概念与规则相关权利归其各自权利人所有。公开销售或商业发布前必须另行完成授权确认。
 
 规则实现参考项目内的规则书与 MIT 许可的 [magsim](https://github.com/pschonev/magsim)。上传的素材包只保存在用户浏览器的 IndexedDB 中。
+
+网站字体使用 [文渊圆体](https://github.com/takushun-wu/WenYuanFonts) 的网页子集版本，字体以 SIL Open Font License 1.1 授权；许可证副本随站点保存在 `public/fonts/WenYuanRoundedSC-LICENSE.md`。

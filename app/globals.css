@@ -1,9 +1,12 @@
 @import 'tailwindcss';
 
+/* WenYuan Rounded SC, bundled under SIL Open Font License 1.1. */
+@font-face { font-family: 'WenYuan Rounded SC'; src: url('/fonts/WenYuanRoundedSC-Regular.woff') format('woff'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'WenYuan Rounded SC'; src: url('/fonts/WenYuanRoundedSC-Heavy.woff') format('woff'); font-style: normal; font-weight: 700 1000; font-display: swap; }
 :root { --ink: #171316; --paper: #f5f1e9; --red: #f33b26; --pink: #ef3c9b; --yellow: #f8d90a; --blue: #6db7db; --green: #48a847; --purple: #8247ae; --motion-press: 120ms; --motion-ui: 180ms; --motion-panel: 240ms; --motion-step: 150ms; --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); }
 * { box-sizing: border-box; }
 html, body { min-height: 100%; overflow: hidden; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'WenYuan Rounded SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-synthesis: weight style; }
 button { font: inherit; cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: .45; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
