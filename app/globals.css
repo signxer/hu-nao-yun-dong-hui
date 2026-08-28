@@ -475,7 +475,7 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .event-log p { min-width: 0; }
 .event-log p span:last-child { min-width: 0; overflow-wrap: anywhere; }
 .board-cell { filter: drop-shadow(0 2px 0 rgba(40, 29, 67, .12)); }
-.home-right { justify-content: flex-start; padding-top: clamp(42px, 7vh, 76px); }
+.home-right { justify-content: flex-start; padding: clamp(54px, 7vh, 96px) 4vw clamp(78px, 10vh, 144px); background: linear-gradient(180deg, #6e5be5 0%, #563b91 56%, #3b2b61 100%); }
 .poster-number { display: none; }
 .exit-overlay { z-index: 220; background: rgba(38, 28, 61, .66); }
 .app-shell > .exit-overlay { position: fixed; inset: 0; z-index: 220; pointer-events: auto; }
