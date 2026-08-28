@@ -432,3 +432,31 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 
 @media (max-height: 800px) and (min-width: 901px) { .racer-card { min-height: 198px; } .racer-card .card-token { width: 68px; height: 68px; } .card-top { min-height: 62px; } }
 @media (max-width: 580px) { .racer-card { border-radius: 17px; } .racer-card .card-token { width: 66px; height: 66px; } .card-top { min-height: 62px; } .poster { border-radius: 22px; } }
+
+/* Unified SVG icon language: rounded joins, quiet alignment, and one graphic mark across every scene. */
+.ui-icon { display: block; flex: 0 0 auto; overflow: visible; }
+.brand-logo { display: block; flex: 0 0 auto; width: 48px; height: 48px; filter: drop-shadow(0 5px 0 rgba(77, 59, 123, .24)); transform: rotate(-4deg); transition: transform var(--motion-ui) var(--ease-out), filter var(--motion-ui) ease; }
+.brand-lockup:hover .brand-logo { transform: rotate(-1deg) translateY(-2px) scale(1.04); filter: drop-shadow(0 7px 0 rgba(77, 59, 123, .24)); }
+.brand-lockup { gap: 10px; }
+.text-button, .lang-button, .sound-button { display: inline-flex; align-items: center; gap: 7px; }
+.text-button .ui-icon, .lang-button .ui-icon, .sound-button .ui-icon { color: var(--purple); }
+.button-arrow, .button-icon { display: inline-flex; align-items: center; justify-content: center; margin-left: auto !important; font-size: 0 !important; line-height: 1; }
+.button-arrow .ui-icon { transition: transform var(--motion-ui) var(--ease-out); }
+.primary-cta:hover:not(:disabled) .button-arrow .ui-icon, .continue-cta:hover:not(:disabled) .button-arrow .ui-icon { transform: translate(2px, -2px); }
+.exit-button { display: inline-flex; align-items: center; gap: 7px; }
+.exit-button .ui-icon { color: var(--red); }
+.mode-icon .ui-icon { color: var(--yellow); }
+.mode-arrow { display: inline-flex; align-items: center; justify-content: center; }
+.asset-choice-icon .ui-icon { color: inherit; }
+.upload-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.finish-trophy { display: grid; place-items: center; }
+.finish-trophy .ui-icon { width: min(112px, 24vw); height: min(112px, 24vw); color: #d7a51c; stroke: currentColor; }
+.is-silver .finish-trophy .ui-icon { color: #91a3b2; }
+.dice-visual .ui-icon { color: currentColor; }
+.tutorial-visual > span { display: grid; place-items: center; }
+.tutorial-visual > span .ui-icon { color: var(--ink); filter: drop-shadow(7px 8px 0 rgba(23,19,22,.16)); }
+.icon-close .ui-icon { color: var(--purple); }
+.connection-chip { display: inline-flex; align-items: center; gap: 6px; }
+.connection-chip.is-disconnected .ui-icon { color: var(--red); }
+.connection-chip.is-connecting .ui-icon { color: var(--yellow); }
+.connection-chip.is-connected .ui-icon { color: var(--green); }
