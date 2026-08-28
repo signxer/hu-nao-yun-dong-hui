@@ -172,8 +172,8 @@ const cornerCellPath = (cell: { x: number; y: number; w: number; h: number }, po
   const radius = 13;
   const topLeft = position === 0 || position === 30;
   const topRight = position === 12 || position === 30;
-  const bottomRight = position === 0 || position === 15;
-  const bottomLeft = position === 29;
+  const bottomRight = position === 15;
+  const bottomLeft = position === 0 || position === 29;
   const { x, y, w, h } = cell;
   return `M ${x + (topLeft ? radius : 0)} ${y} H ${x + w - (topRight ? radius : 0)} ${topRight ? `Q ${x + w} ${y} ${x + w} ${y + radius}` : ''} V ${y + h - (bottomRight ? radius : 0)} ${bottomRight ? `Q ${x + w} ${y + h} ${x + w - radius} ${y + h}` : ''} H ${x + (bottomLeft ? radius : 0)} ${bottomLeft ? `Q ${x} ${y + h} ${x} ${y + h - radius}` : ''} V ${y + (topLeft ? radius : 0)} ${topLeft ? `Q ${x} ${y} ${x + radius} ${y}` : ''} Z`;
 };
