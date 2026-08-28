@@ -494,3 +494,8 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .home-right .mode-panel .eyebrow { margin-top: 0; margin-bottom: 6px; }
 .home-right .mode-row { padding-top: clamp(9px, 1.5vh, 13px); padding-bottom: clamp(9px, 1.5vh, 13px); }
 @media (max-width: 580px) { .home-right .poster { height: 270px; min-height: 270px; } }
+.card-token.is-original { filter: saturate(1.24) drop-shadow(0 4px 3px rgba(51,39,77,.22)); }
+.poster-avatar-grid .card-token.is-original { filter: saturate(1.24) drop-shadow(0 7px 5px rgba(20,12,37,.42)); }
+.racer-card .card-token.is-original { filter: saturate(1.24) drop-shadow(0 7px 4px rgba(51,39,77,.25)); }
+.ability-card .card-token.is-original, .ability-activation-card .card-token.is-original, .trip-card .card-token.is-original { filter: saturate(1.24) drop-shadow(0 6px 4px rgba(57,41,83,.2)); }
+.piece-image { filter: saturate(1.24); }
