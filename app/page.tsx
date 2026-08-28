@@ -122,7 +122,7 @@ function BrandMark() {
 }
 
 function BrandLockup() {
-  return <div className="brand-lockup"><BrandMark /><span className="brand-type">胡闹<br />运动会</span></div>;
+  return <div className="brand-lockup"><BrandMark /><span className="brand-type">胡闹运动会</span></div>;
 }
 
 function Token({ card, assetUrl, size = 'normal' }: { card: RacerCard; assetUrl?: string; size?: 'small' | 'normal' }) {
