@@ -476,7 +476,7 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .event-log p { min-width: 0; }
 .event-log p span:last-child { min-width: 0; overflow-wrap: anywhere; }
 .board-cell { filter: drop-shadow(0 2px 0 rgba(40, 29, 67, .12)); }
-.home-right { justify-content: flex-start; padding: clamp(54px, 7vh, 96px) 4vw clamp(78px, 10vh, 144px); background: linear-gradient(180deg, #6e5be5 0%, #563b91 56%, #3b2b61 100%); }
+.home-right { justify-content: flex-start; gap: clamp(16px, 2.6vh, 28px); padding: clamp(42px, 6vh, 88px) 4vw clamp(84px, 11vh, 148px); overflow-y: auto; background: linear-gradient(180deg, #6e5be5 0%, #563b91 56%, #3b2b61 100%); }
 .poster-number { display: none; }
 .exit-overlay { z-index: 220; background: rgba(38, 28, 61, .66); }
 .app-shell > .exit-overlay { position: fixed; inset: 0; z-index: 220; pointer-events: auto; }
@@ -489,3 +489,8 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .exit-card .name-actions { position: relative; z-index: 1; }
 .exit-card .ability-cancel { padding: 12px 15px; border: 2px solid rgba(85, 66, 120, .18); border-radius: 14px; background: rgba(255, 255, 255, .68); }
 .exit-card .primary-cta { padding: 13px 16px; }
+.home-right .poster { flex: 0 0 auto; height: min(380px, 35vh); min-height: 250px; }
+.home-right .mode-panel { flex: 0 0 auto; }
+.home-right .mode-panel .eyebrow { margin-top: 0; margin-bottom: 6px; }
+.home-right .mode-row { padding-top: clamp(9px, 1.5vh, 13px); padding-bottom: clamp(9px, 1.5vh, 13px); }
+@media (max-width: 580px) { .home-right .poster { height: 270px; min-height: 270px; } }
