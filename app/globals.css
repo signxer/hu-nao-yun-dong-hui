@@ -472,3 +472,12 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .event-log p { min-width: 0; }
 .event-log p span:last-child { min-width: 0; overflow-wrap: anywhere; }
 .board-cell { filter: drop-shadow(0 2px 0 rgba(40, 29, 67, .12)); }
+.exit-overlay { z-index: 220; background: rgba(38, 28, 61, .66); }
+.exit-card { position: relative; overflow: hidden; width: min(520px, calc(100vw - 36px)); padding: 34px 34px 30px; border: 3px solid #fff; border-radius: 30px; background: linear-gradient(145deg, #fffdfa 0%, #fff0e8 100%); box-shadow: 0 12px 0 var(--toy-shadow), 0 26px 56px rgba(27, 18, 47, .35); }
+.exit-card::before { content: ''; position: absolute; top: -56px; right: -34px; width: 150px; height: 150px; border: 18px solid rgba(139, 108, 255, .16); border-radius: 50%; }
+.exit-card::after { content: '✦'; position: absolute; top: 22px; right: 28px; color: var(--yellow); font-size: 28px; text-shadow: 2px 2px 0 var(--purple); transform: rotate(12deg); }
+.exit-card h2 { position: relative; z-index: 1; color: #302847; text-shadow: 0 3px 0 #fff; }
+.exit-card p { position: relative; z-index: 1; max-width: 390px; }
+.exit-card .name-actions { position: relative; z-index: 1; }
+.exit-card .ability-cancel { padding: 12px 15px; border: 2px solid rgba(85, 66, 120, .18); border-radius: 14px; background: rgba(255, 255, 255, .68); }
+.exit-card .primary-cta { padding: 13px 16px; }

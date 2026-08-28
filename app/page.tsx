@@ -141,8 +141,7 @@ function Card({ card, selected, onClick, locale, assetUrl, onSound }: { card: Ra
 }
 
 function ExitGameButton({ locale, onClick }: { locale: Locale; onClick?: () => void }) {
-  const fallbackExit = () => { if (window.confirm(locale === 'zh' ? '退出后将清除当前游戏进度，确定退出吗？' : 'Exit and clear the current game progress?')) { window.localStorage.removeItem(gameStorageKey); window.localStorage.removeItem('hu-nao-room-credentials-v1'); window.location.assign('/'); } };
-  return <button type="button" data-exit-game="true" className="exit-button" onClick={onClick ?? fallbackExit} aria-haspopup="dialog" aria-label={locale === 'zh' ? '退出游戏' : 'Exit game'}><Icon name="logout" size={14} /> <span>{locale === 'zh' ? '退出游戏' : 'EXIT GAME'}</span></button>;
+  return <button type="button" data-exit-game="true" className="exit-button" onClick={() => onClick?.()} aria-haspopup="dialog" aria-label={locale === 'zh' ? '退出游戏' : 'Exit game'}><Icon name="logout" size={14} /> <span>{locale === 'zh' ? '退出游戏' : 'EXIT GAME'}</span></button>;
 }
 
 function ExitConfirmOverlay({ locale, onCancel, onConfirm }: { locale: Locale; onCancel: () => void; onConfirm: () => void }) {
@@ -337,7 +336,7 @@ export default function Home() {
   const startDraft = (game: GameState) => { const startPlayer = drawStartingPlayer(game.players.length); setState(game); setDraft({ pick: 0, startPlayer, pool: drawDraftPool(game.players.length) }); setToast(locale === 'zh' ? `抽签结果：${game.players[startPlayer].name} 先选角，随后按蛇形顺序。` : `${game.players[startPlayer].name} draws first; the snake order follows.`); };
   const start = () => { playSound('click'); if (!playerName.trim()) { setNamePrompt(true); return; } if (mode === 'online') { void openOnlineRoom(pendingOnlineCode || undefined); return; } const game = createGame(mode, locale); game.players[0].name = playerName.trim(); setResumePayload(null); if (game.phase === 'draft') startDraft(game); else { setState(game); setDraft(null); } setRaceChoice([]); setTripNotice(null); setMastermindTarget(null); setToast(null); setActiveAbility(null); setPendingAbility(null); setPostRollActions([]); setAbilityActivation(null); setMagicianPrompt(null); setDiceRoll(null); setMovement(null); setFinishCelebration(null); setCelebratedFinishIds([]); setExitPrompt(false); };
   const confirmExit = () => { playSound('click'); window.localStorage.removeItem(gameStorageKey); window.localStorage.removeItem('hu-nao-room-credentials-v1'); roomRef.current?.close(); setRoomCredentials(null); setPresence([]); setResumePayload(null); setExitPrompt(false); setState(null); setDraft(null); setRaceChoice([]); setTripNotice(null); setMastermindTarget(null); setToast(null); setActiveAbility(null); setPendingAbility(null); setPostRollActions([]); setAbilityActivation(null); setMagicianPrompt(null); setDiceRoll(null); setMovement(null); setFinishCelebration(null); setCelebratedFinishIds([]); };
-  const requestExit = useCallback(() => { if (window.confirm(locale === 'zh' ? '退出后将清除当前游戏进度，确定退出吗？' : 'Exit and clear the current game progress?')) confirmExit(); }, [locale, confirmExit]);
+  const requestExit = useCallback(() => { setExitPrompt(true); playSound('click'); }, [playSound]);
   const chooseDraftRacer = (name: RacerName, byAi = false) => {
     if (!state || state.phase !== 'draft' || !draft) return;
     if (state.mode === 'online' && roomRef.current) { sendRoomCommand({ type: 'draft.pick', racer: name }); return; }
