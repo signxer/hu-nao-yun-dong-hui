@@ -16,10 +16,12 @@
     "worker:check": "WRANGLER_WRITE_LOGS=false WRANGLER_LOG_PATH=.wrangler/logs/game.log wrangler deploy --dry-run --config wrangler.game.jsonc"
   },
   "dependencies": {
+    "@types/three": "^0.185.4",
     "fflate": "^0.8.3",
     "next": "16.2.6",
     "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "react-dom": "19.2.6",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
