@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "vinext dev",
     "dev:rooms": "wrangler dev --config wrangler.game.jsonc --port 8787",
-    "build": "vinext build",
-    "start": "vinext start",
+    "build": "next build",
+    "start": "next start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
