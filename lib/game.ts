@@ -166,6 +166,11 @@ function moveDistance(state: GameState, racer: RacerState, distance: number, lin
   if (depth > 24 || racer.eliminated || racer.finished !== null || distance === 0) return;
   if (source === 'power') activeRacers(state).filter((item) => item.id !== racer.id && racerPower(state, item) === 'Scoocher').forEach((item) => moveDistance(state, item, 1, lines, 'scooch', depth + 1));
   const start = racer.position; const direction = Math.sign(distance); const requested = Math.abs(distance); const stickler = hasPower(state, 'Stickler', racer.id);
+  // Capture Banana spaces before movement and before any chained powers move
+  // racers around. The moving racer never triggers its own Banana power.
+  const bananaPositions = activeRacers(state)
+    .filter((item) => item.id !== racer.id && racerPower(state, item) === 'Banana')
+    .map((item) => item.position);
   if (direction > 0 && stickler && start + requested > 30) { lines.push(`${racerByName(racer.name).zhName} 受到较真者影响，移动会超过终点，本次不移动。`); return; }
   let steps = 0; let cursor = start;
   while (steps < requested && cursor < 30 && cursor > 0 || steps < requested && cursor < 30) {
@@ -174,7 +179,7 @@ function moveDistance(state: GameState, racer: RacerState, distance: number, lin
   const end = Math.max(0, Math.min(30, cursor)); const passed = activeRacers(state).filter((other) => other.id !== racer.id && (direction > 0 ? other.position > start && other.position < end : direction < 0 ? other.position < start && other.position > end : false)); racer.position = end;
   if (passed.length) lines.push(`${racerByName(racer.name).zhName} 经过 ${passed.map((item) => racerByName(item.name).zhName).join('、')}。`);
   if (passed.length && racerPower(state, racer) === 'Centaur') passed.forEach((other) => { lines.push(`${racerByName(racer.name).zhName} 踢回 ${racerByName(other.name).zhName} 2 格。`); moveDistance(state, other, -2, lines, 'power', depth + 1); });
-  if (passed.some((other) => activeRacers(state).some((item) => item.position === other.position && racerPower(state, item) === 'Banana'))) applyTrip(state, racer, lines);
+  if (bananaPositions.some((position) => direction > 0 ? position > start && position < end : position < start && position > end)) applyTrip(state, racer, lines);
   const hugeBaby = activeRacers(state).find((item) => item.id !== racer.id && item.position === racer.position && racerPower(state, item) === 'Huge Baby');
   if (hugeBaby && racer.position > 0) { racer.position = Math.max(0, racer.position - 1); trace?.push(racer.position); lines.push(`${racerByName(racer.name).zhName} 被巨婴推回 1 格。`); }
   if (racerPower(state, racer) === 'Huge Baby') activeAt(state, racer.position, racer.id).forEach((other) => { other.position = Math.max(0, racer.position - 1); lines.push(`${racerByName(other.name).zhName} 被巨婴推回 1 格。`); if (racerPower(state, other) === 'Banana') applyTrip(state, racer, lines); });

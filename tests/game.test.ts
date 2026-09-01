@@ -73,6 +73,15 @@ assert.equal(RACERS.length, 36, 'all 36 racer cards must be registered');
 }
 
 {
+  const state = race(['Banana', 'Coach', 'Blimp', 'Hare']);
+  state.racers[0].position = 2;
+  state.racers[1].position = 3;
+  const next = takeTurn(state, state.racers[0].id, { forcedRoll: 4 });
+  assert.equal(next.racers[0].position, 6);
+  assert.equal(next.racers[0].tripped, false, 'Banana never trips itself when passing another racer');
+}
+
+{
   const state = race(['Stickler', 'Coach', 'Blimp', 'Hare']);
   state.racers[0].position = 28;
   const next = takeTurn(state, racer(state).id, { forcedRoll: 3 });

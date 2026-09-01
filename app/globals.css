@@ -148,6 +148,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 .score-row.is-turn { background: #f7df3d; }
 .score-row strong { margin-left: auto; font-size: 18px; }
 .score-dot, .result-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.score-rank { display: inline-block; width: 22px; flex: 0 0 22px; color: #a79ba4; font-size: 10px; font-weight: 1000; }
 .ability-card { display: flex; gap: 10px; align-items: center; }
 .ability-card > div { display: flex; flex-direction: column; gap: 4px; }
 .ability-card strong { font-size: 16px; }
@@ -350,7 +351,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--yellow); ou
 @media (hover: hover) and (pointer: fine) { .board-piece:hover { filter: drop-shadow(3px 4px 0 #171316) brightness(1.08); } }
 @media (prefers-reduced-motion: reduce) { .board-piece animateTransform { display: none; } .board-piece, .piece-tripped, .confetti i, .finish-trophy, .finish-celebration::before, .finish-celebration::after, .space-effect, .dice-visual.rolling { animation: none !important; transition-property: opacity, color, background-color !important; transition-duration: 160ms !important; transform: none !important; } .system-overlay, .ability-overlay, .dice-overlay, .finish-celebration { animation: overlay-in 160ms var(--ease-out) !important; } html { scroll-behavior: auto; } }
 @media (max-height: 800px) and (min-width: 901px) { .app-header { height: 56px; } .race-shell { height: calc(100dvh - 56px); padding-top: 16px; padding-bottom: 14px; } .race-heading { margin-bottom: 10px; } .race-heading h1 { font-size: 48px; } .race-number { font-size: 50px; } .race-board { max-height: 38vh; } .turn-strip { margin-top: 10px; } .side-block { margin-bottom: 14px; padding-bottom: 14px; } .event-log { max-height: 150px; } .draft-shell { height: calc(100dvh - 56px); padding-top: 20px; } .racer-card { min-height: 190px; } }
-@media (max-width: 900px) { .home-shell { grid-template-columns: 1fr; overflow: auto; scrollbar-width: none; } .home-left { min-height: 100dvh; padding-bottom: 38px; } .home-right { min-height: 100dvh; padding-top: 38px; } .poster { min-height: 270px; } .race-shell { grid-template-columns: 1fr; overflow: auto; scrollbar-width: none; } .race-side { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; border-left: 0; padding-left: 0; } .log-block { grid-column: 1 / -1; } .draft-grid { grid-template-columns: repeat(3, 1fr); } .draft-assignments { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 900px) { .home-shell { grid-template-columns: 1fr; overflow: auto; scrollbar-width: none; } .home-left { min-height: 100dvh; padding-bottom: 38px; } .home-right { min-height: 100dvh; padding-top: 38px; } .poster { min-height: 270px; } .race-shell { grid-template-columns: 1fr; overflow: auto; scrollbar-width: none; } .race-side { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; border-left: 0; padding-left: 0; } .race-side .operation-block { grid-column: 1 / -1; } .log-block { grid-column: 1 / -1; } .draft-grid { grid-template-columns: repeat(3, 1fr); } .draft-assignments { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 580px) { .hero-copy h1 { font-size: 58px; } .home-footer { flex-direction: column; } .home-right { padding: 25px 20px 40px; } .draft-shell, .race-shell, .result-shell { width: calc(100% - 30px); padding-top: 34px; } .app-header { padding: 0 15px; } .header-meta > span { display: none; } .draft-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .racer-card { min-height: 205px; padding: 10px; } .card-title { font-size: 14px; } .race-board { min-height: 240px; border-radius: 18px; } .turn-strip { align-items: flex-start; flex-wrap: wrap; } .roll-button { width: 100%; } .section-heading h1, .race-heading h1 { font-size: 42px; } .room-card { padding: 28px 14px; } .room-code span { width: 36px; height: 47px; } .result-row strong { font-size: 18px; } .result-score { font-size: 24px; } .asset-panel { align-items: flex-start; flex-direction: column; } .upload-button { width: 100%; text-align: center; } .keyboard-hint { display: none; } .draft-assignments { grid-template-columns: 1fr; } .ability-activation-card { padding: 20px; } .name-actions { align-items: stretch; flex-direction: column-reverse; } .name-actions .primary-cta, .name-actions .ability-cancel { width: 100%; text-align: center; } }
 
 /* 3D party-toy visual system */
@@ -493,7 +494,67 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .home-right .poster { flex: 0 0 auto; height: min(380px, 35vh); min-height: 250px; }
 .home-right .mode-panel { flex: 0 0 auto; }
 .home-right .mode-panel .eyebrow { margin-top: 0; margin-bottom: 6px; }
-.home-right .mode-row { padding-top: clamp(9px, 1.5vh, 13px); padding-bottom: clamp(9px, 1.5vh, 13px); }
+.home-right .mode-panel { width: 100%; }
+.home-right .mode-row {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-top: clamp(9px, 1.5vh, 13px);
+  padding-bottom: clamp(9px, 1.5vh, 13px);
+  border-color: rgba(255, 255, 255, .2);
+  color: #fffdf8;
+  background: rgba(255, 255, 255, .065);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+  transition: transform var(--motion-ui) var(--ease-out), border-color var(--motion-ui) ease, background-color var(--motion-ui) ease, box-shadow var(--motion-ui) var(--ease-out);
+}
+.home-right .mode-row::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, rgba(255, 255, 255, .22), rgba(255, 228, 94, .12) 54%, rgba(139, 108, 255, .2));
+  opacity: 0;
+  transform: translateX(-8%) scale(.98);
+  transition: transform var(--motion-panel) var(--ease-in-out), opacity var(--motion-ui) ease;
+}
+.home-right .mode-row > * { position: relative; z-index: 1; }
+.home-right .mode-row.active {
+  border-color: rgba(255, 255, 255, .82);
+  background: rgba(255, 255, 255, .13);
+  box-shadow: 0 6px 0 rgba(28, 18, 48, .3), inset 0 1px 0 rgba(255, 255, 255, .2);
+  transform: translateX(4px);
+}
+.home-right .mode-row.active::before { opacity: 1; transform: translateX(0) scale(1); }
+.home-right .mode-number { color: rgba(255, 233, 145, .78); font-weight: 1000; }
+.home-right .mode-copy strong { color: #fff; font-size: 16px; text-shadow: 0 2px 7px rgba(18, 10, 32, .6); }
+.home-right .mode-copy small { color: rgba(255, 252, 247, .76); font-size: 11px; line-height: 1.3; text-shadow: 0 2px 6px rgba(18, 10, 32, .52); }
+.home-right .mode-row.active .mode-copy small { color: #fffdf8; }
+.home-right .mode-icon { color: #ffe45e; transition: transform var(--motion-ui) var(--ease-out), background-color var(--motion-ui) ease, border-color var(--motion-ui) ease; }
+.home-right .mode-row.active .mode-icon { border-color: rgba(255, 244, 175, .82); background: rgba(255, 228, 94, .16); transform: rotate(-6deg) scale(1.1); }
+.home-right .mode-arrow { color: #ffe45e; opacity: .32; transform: translateX(-4px); transition: transform var(--motion-ui) var(--ease-out), opacity var(--motion-ui) ease; }
+.home-right .mode-row.active .mode-arrow { opacity: 1; transform: translateX(4px); }
+.home-right .mode-row:focus-visible { outline-color: #ffe45e; outline-offset: 2px; }
+.home-right .online-join { opacity: 1; transform: translateY(0); transition: transform var(--motion-panel) var(--ease-out), opacity var(--motion-ui) ease; }
+.home-right .online-join input { min-height: 44px; border: 2px solid rgba(255, 255, 255, .36); border-radius: 14px; color: #fff; background: rgba(20, 13, 34, .38); }
+.home-right .online-join input::placeholder { color: rgba(255, 255, 255, .66); }
+.home-right .online-join input:focus-visible { border-color: #ffe45e; outline: 3px solid rgba(255, 228, 94, .24); outline-offset: 2px; }
+.home-right .online-join button { min-height: 44px; }
+.hero-copy p:last-child { line-height: 1.14; }
+@starting-style { .home-right .online-join { opacity: 0; transform: translateY(-12%); } }
+@media (hover: hover) and (pointer: fine) {
+  .home-right .mode-row:hover { border-color: rgba(255, 255, 255, .58); background: rgba(255, 255, 255, .11); transform: translateY(-2px); }
+  .home-right .mode-row.active:hover { transform: translate(4px, -2px); }
+  .home-right .mode-row:hover .mode-icon { transform: rotate(-4deg) scale(1.08); }
+  .home-right .mode-row:hover .mode-arrow { opacity: .9; transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-right .mode-row,
+  .home-right .mode-row::before,
+  .home-right .mode-icon,
+  .home-right .mode-arrow,
+  .home-right .online-join { transform: none !important; transition-property: opacity, color, background-color, border-color !important; transition-duration: 160ms !important; }
+}
 @media (max-width: 580px) { .home-right .poster { height: 270px; min-height: 270px; } }
 .card-token.is-original { filter: saturate(1.24) drop-shadow(0 4px 3px rgba(51,39,77,.22)); }
 .poster-avatar-grid .card-token.is-original { filter: saturate(1.24) drop-shadow(0 7px 5px rgba(20,12,37,.42)); }
@@ -512,6 +573,244 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 .board-3d-caption .mild-dot { background: #69b9e6; }
 .board-3d-caption .star-dot { background: #f9d91b; }
 .board-3d-caption .trip-dot { background: #f0524c; }
+
+/* Race stage: the board is the scene, while the HUD floats above it. Keep
+   this desktop treatment separate from the compact mobile layout below so
+   the board can breathe without sacrificing readable controls. */
+@media (min-width: 901px) {
+  .race-shell {
+    position: relative;
+    display: block;
+    width: min(1560px, calc(100vw - 44px));
+    height: calc(100dvh - 64px);
+    padding: 24px;
+    overflow: hidden;
+    border: 5px solid rgba(255, 255, 255, .88);
+    border-radius: 40px;
+    background: radial-gradient(circle at 28% 18%, #3b2b4e 0%, #21192d 52%, #15111c 100%);
+    box-shadow: 0 10px 0 #40325f, 0 24px 40px rgba(42, 27, 66, .3);
+  }
+
+  .race-main {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .race-heading {
+    position: absolute;
+    z-index: 8;
+    top: 28px;
+    left: 32px;
+    right: 380px;
+    align-items: flex-start;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  .race-shell .race-heading .eyebrow {
+    margin-bottom: 10px;
+    color: #f8d94b;
+    text-shadow: 0 2px 8px rgba(25, 14, 39, .62);
+  }
+
+  .race-shell .race-heading h1,
+  .race-shell .race-number {
+    color: #fffaf1;
+    text-shadow: 0 4px 0 rgba(45, 27, 69, .52), 0 10px 22px rgba(16, 9, 26, .5);
+  }
+
+  .race-shell .race-heading h1 { font-size: clamp(46px, 5vw, 78px); }
+  .race-shell .race-number { font-size: clamp(50px, 6vw, 78px); }
+  .race-shell .race-number span { color: rgba(255, 250, 241, .66); }
+
+  .race-main > .board-wrap {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    right: 360px;
+  }
+
+  .race-main > .board-wrap .board-3d-frame {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border: 0;
+    border-radius: 28px;
+    box-shadow: none;
+  }
+
+  .race-main > .board-wrap .board-3d-caption {
+    position: absolute;
+    z-index: 2;
+    left: 32px;
+    bottom: 190px;
+    max-width: calc(100% - 420px);
+    margin: 0;
+    padding: 7px 11px;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 999px;
+    color: rgba(255, 250, 241, .74);
+    background: rgba(30, 20, 43, .42);
+    backdrop-filter: blur(10px);
+  }
+
+  .race-main > .board-wrap .race-board {
+    width: 100%;
+    max-height: none;
+  }
+
+  .race-main > .turn-strip {
+    position: absolute;
+    z-index: 10;
+    right: 380px;
+    bottom: 78px;
+    left: 24px;
+    margin: 0;
+    padding: 11px 14px;
+    border: 2px solid rgba(255, 255, 255, .8);
+    border-radius: 20px;
+    background: rgba(255, 250, 243, .9);
+    box-shadow: 0 8px 0 rgba(49, 35, 77, .35), 0 16px 28px rgba(27, 17, 44, .2);
+    backdrop-filter: blur(14px) saturate(1.08);
+  }
+
+  .race-main > .turn-strip + .ability-controls {
+    position: absolute;
+    z-index: 11;
+    right: 380px;
+    bottom: 24px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 42px;
+    margin: 0;
+    padding: 7px 10px;
+    border: 2px solid rgba(255, 255, 255, .72);
+    border-radius: 16px;
+    background: rgba(255, 250, 243, .86);
+    box-shadow: 0 7px 0 rgba(49, 35, 77, .25), 0 13px 24px rgba(27, 17, 44, .16);
+    backdrop-filter: blur(14px) saturate(1.08);
+  }
+
+  .race-main > .turn-strip + .ability-controls .ability-control-title {
+    margin: 0 4px 0 0;
+  }
+
+  .race-main > .turn-strip + .ability-controls .ability-button,
+  .race-main > .turn-strip + .ability-controls .ability-cancel {
+    min-height: 32px;
+    border-radius: 10px;
+  }
+
+  .race-main > .event-toast {
+    position: absolute;
+    z-index: 12;
+    bottom: 146px;
+    left: 28px;
+    margin: 0;
+  }
+
+  .race-side {
+    position: absolute;
+    z-index: 9;
+    top: 32px;
+    right: 28px;
+    bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 318px;
+    padding: 0;
+    border: 0;
+    overflow: auto;
+    scrollbar-width: none;
+    pointer-events: none;
+  }
+
+  .race-side::-webkit-scrollbar { display: none; }
+
+  .race-side .side-block {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 16px 16px 17px;
+    border: 2px solid rgba(255, 255, 255, .72);
+    border-radius: 22px;
+    background: rgba(255, 250, 243, .76);
+    box-shadow: 0 7px 0 rgba(49, 35, 77, .25), 0 15px 28px rgba(27, 17, 44, .18);
+    backdrop-filter: blur(14px) saturate(1.08);
+    pointer-events: auto;
+  }
+
+  .race-side .side-block .eyebrow { color: #756775; }
+  .race-side .score-row.is-turn { background: linear-gradient(90deg, #ffe96b, #ffd347); }
+  .race-side .team-block { min-height: 154px; }
+  .race-side .log-block { min-height: 0; flex: 0 0 auto; height: 166px; overflow: hidden; }
+  .race-side .event-log { max-height: none; height: 116px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 250, 241, .62) transparent; }
+  .race-side .event-log::-webkit-scrollbar { display: block; width: 7px; }
+  .race-side .event-log::-webkit-scrollbar-thumb { background: rgba(255, 250, 241, .58); border-radius: 99px; }
+  .race-side .event-log::-webkit-scrollbar-track { background: transparent; }
+}
+
+@media (max-width: 900px) {
+  .race-main > .board-wrap > .score-panel {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 250, 241, .42);
+    border-radius: 18px;
+    background: rgba(34, 24, 50, .58);
+    color: #fffdf8;
+    box-shadow: 0 8px 18px rgba(14, 8, 24, .24);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  }
+
+  .race-main > .board-wrap > .score-panel .eyebrow { color: #ffe45e; }
+  .race-main > .board-wrap > .score-panel .score-row { color: #fffdf8; }
+  .race-main > .board-wrap > .score-panel .score-row.is-turn { border-radius: 8px; background: rgba(255, 222, 74, .2); }
+}
+
+/* The live race message is a compact horizontal broadcast, never a stretched
+   panel. Keep these dimensions isolated from the older toast styles above. */
+@media (min-width: 901px) {
+  .race-main > .race-top-status {
+    position: absolute !important;
+    inset: auto !important;
+    top: 58px !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: 20 !important;
+    display: flex !important;
+    align-items: center;
+    width: fit-content !important;
+    max-width: min(58%, calc(100% - 430px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 48px !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+    writing-mode: horizontal-tb !important;
+    transform: translateX(-50%) !important;
+    animation: race-status-in 180ms var(--ease-out) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @keyframes race-status-in {
+    from { opacity: 0; transform: translate(-50%, 8px) scale(.97); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  }
+}
 
 /* Presentation layers must escape the app-shell content stacking rule. The
    app shell gives every direct child a local z-index for board content; these
@@ -555,4 +854,256 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
 @media (prefers-reduced-motion: reduce) {
   .dice-visual.rolling { animation: none !important; }
   .ability-activation-overlay::after { animation: none !important; opacity: .18; transform: translate(-50%, -50%); }
+}
+
+/* Integrated HUD: let the board texture carry the UI instead of stacking
+   opaque cards over it. Controls keep translucent hit areas for contrast and
+   accessibility, while informational layers remain visually weightless. */
+@media (min-width: 901px) {
+  .race-main > .turn-strip,
+  .race-main > .turn-strip + .ability-controls,
+  .race-side .side-block {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .race-main > .turn-strip {
+    padding: 9px 10px;
+    border-bottom: 1px solid rgba(255, 250, 241, .3);
+    border-radius: 0;
+  }
+
+  .turn-copy span,
+  .turn-copy small,
+  .turn-copy strong,
+  .race-main > .turn-strip + .ability-controls .ability-auto-note,
+  .race-main > .turn-strip + .ability-controls .ability-control-title small,
+  .race-side .side-block,
+  .race-side .ability-card span,
+  .race-side .team-block > small,
+  .event-log p {
+    color: rgba(255, 250, 241, .9);
+    text-shadow: 0 2px 7px rgba(14, 8, 24, .82);
+  }
+
+  .turn-copy strong { color: #fffdf8; }
+  .race-main > .turn-strip + .ability-controls .ability-control-title span,
+  .race-side .side-block .eyebrow {
+    color: #ffe45e;
+    text-shadow: 0 2px 7px rgba(14, 8, 24, .85);
+  }
+
+  .race-main > .turn-strip + .ability-controls {
+    padding: 5px 0;
+    border-top: 1px solid rgba(255, 250, 241, .2);
+    border-radius: 0;
+  }
+
+  .race-main > .turn-strip + .ability-controls .ability-button,
+  .race-main > .turn-strip + .ability-controls .ability-cancel {
+    border-color: rgba(255, 250, 241, .48);
+    color: #fffdf8;
+    background: rgba(40, 27, 60, .3);
+    box-shadow: 0 3px 0 rgba(16, 9, 27, .25);
+    text-shadow: 0 1px 5px rgba(14, 8, 24, .75);
+    backdrop-filter: blur(5px);
+  }
+
+  .race-main > .turn-strip + .ability-controls .ability-button:hover,
+  .race-main > .turn-strip + .ability-controls .ability-cancel:hover {
+    border-color: #fff3a1;
+    background: rgba(255, 255, 255, .16);
+  }
+
+  .race-main > .turn-strip + .ability-controls .ability-button.is-armed {
+    border-color: #ffe45e;
+    color: #2d2145;
+    background: #ffe45e;
+    text-shadow: none;
+  }
+
+  .race-side {
+    gap: 8px;
+    padding: 14px 10px 12px;
+    border: 1px solid rgba(255, 250, 241, .48);
+    border-radius: 28px;
+    background: linear-gradient(155deg, rgba(47, 33, 67, .68), rgba(24, 17, 35, .56));
+    box-shadow: 0 12px 28px rgba(14, 8, 24, .28), inset 0 1px 0 rgba(255, 255, 255, .16);
+    backdrop-filter: blur(18px) saturate(1.18);
+    -webkit-backdrop-filter: blur(18px) saturate(1.18);
+    isolation: isolate;
+  }
+
+  .race-main > .board-wrap > .score-panel {
+    position: absolute;
+    z-index: 11;
+    right: auto;
+    bottom: 24px;
+    left: 24px;
+    width: min(250px, calc(100% - 48px));
+    margin: 0;
+    padding: 12px 14px 13px;
+    border: 1px solid rgba(255, 250, 241, .42);
+    border-radius: 18px;
+    background: rgba(34, 24, 50, .58);
+    box-shadow: 0 8px 18px rgba(14, 8, 24, .24), inset 0 1px 0 rgba(255, 255, 255, .12);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    pointer-events: auto;
+  }
+
+  .race-main > .board-wrap > .score-panel .eyebrow {
+    margin-bottom: 8px;
+    color: #ffe45e;
+    text-shadow: 0 2px 7px rgba(14, 8, 24, .85);
+  }
+
+  .race-main > .board-wrap > .score-panel .score-row {
+    color: #fffdf8;
+    text-shadow: 0 2px 7px rgba(14, 8, 24, .82);
+  }
+
+  .race-main > .board-wrap > .score-panel .score-row.is-turn {
+    background: rgba(255, 222, 74, .2);
+    border-radius: 8px;
+  }
+
+  .race-main > .board-wrap > .score-panel .score-rank { color: rgba(255, 250, 241, .58); }
+
+  .race-main > .race-top-status {
+    position: absolute;
+    z-index: 12;
+    top: 24px;
+    left: 32px;
+    max-width: min(58%, calc(100% - 430px));
+    margin: 0;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 250, 241, .52);
+    border-left: 4px solid #ffe45e;
+    border-radius: 999px;
+    background: rgba(35, 24, 52, .58);
+    color: #fffdf8;
+    box-shadow: 0 4px 0 rgba(16, 9, 27, .3);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .race-main > .race-heading { top: 24px; }
+
+  .race-side .operation-block {
+    flex: 0 0 auto;
+    padding: 12px 8px 14px;
+    border-bottom: 1px solid rgba(255, 250, 241, .25);
+  }
+
+  .race-side .operation-block .turn-strip {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 43px;
+    gap: 8px;
+    margin: 0;
+    padding: 0 0 10px;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 250, 241, .2);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .race-side .operation-block .turn-avatar { width: 40px; height: 40px; }
+  .race-side .operation-block .die-face { width: 40px; height: 40px; }
+  .race-side .operation-block .roll-button {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .race-side .operation-block .ability-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 10px 0 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .race-side .operation-block .ability-control-title {
+    flex: 0 0 100%;
+    margin: 0 0 1px;
+  }
+
+  .race-side .operation-block .ability-control-title small { display: none; }
+  .race-side .operation-block .ability-option { position: relative; margin: 0; }
+  .race-side .operation-block .ability-button,
+  .race-side .operation-block .ability-cancel {
+    width: auto;
+    min-height: 32px;
+    padding: 7px 9px;
+    border-color: rgba(255, 250, 241, .48);
+    border-radius: 10px;
+    color: #fffdf8;
+    background: rgba(40, 27, 60, .3);
+    box-shadow: 0 3px 0 rgba(16, 9, 27, .25);
+    text-shadow: 0 1px 5px rgba(14, 8, 24, .75);
+    backdrop-filter: blur(5px);
+  }
+
+  .race-side .operation-block .ability-button:hover,
+  .race-side .operation-block .ability-cancel:hover {
+    border-color: #fff3a1;
+    background: rgba(255, 255, 255, .16);
+  }
+
+  .race-side .operation-block .ability-button.is-armed {
+    border-color: #ffe45e;
+    color: #2d2145;
+    background: #ffe45e;
+    text-shadow: none;
+  }
+
+  .race-side .operation-block .ability-auto-note {
+    flex: 1 1 100%;
+    margin: 0;
+  }
+
+  .race-side .side-block {
+    padding: 14px 8px 16px;
+    border-bottom: 1px solid rgba(255, 250, 241, .25);
+    border-radius: 0;
+  }
+
+  .race-side .score-row {
+    color: #fffdf8;
+    text-shadow: 0 2px 7px rgba(14, 8, 24, .8);
+  }
+
+  .race-side .score-row.is-turn {
+    background: rgba(255, 222, 74, .22);
+    box-shadow: none;
+  }
+
+  .race-side .score-row strong,
+  .race-side .ability-card strong {
+    color: #fffdf8;
+    text-shadow: 0 2px 7px rgba(14, 8, 24, .85);
+  }
+
+  .race-side .ability-meter {
+    background: rgba(255, 250, 241, .24);
+  }
+
+  .race-side .ability-meter span { background: #ffe45e; }
+  .race-side .event-log p { border-color: rgba(255, 250, 241, .2); }
+
+  .race-main > .event-toast {
+    border-color: rgba(255, 250, 241, .6);
+    background: rgba(35, 24, 52, .5);
+    box-shadow: 0 4px 0 rgba(16, 9, 27, .35);
+    backdrop-filter: blur(7px);
+  }
 }
