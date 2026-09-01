@@ -145,6 +145,30 @@ export class AudioDirector {
     envelope.gain.setValueAtTime(gain, at); envelope.gain.exponentialRampToValueAtTime(0.0001, at + 0.34); oscillator.connect(envelope); this.connectMusic(envelope, -.12, .32); oscillator.start(at); oscillator.stop(at + 0.36);
   }
 
+  private drumKick(at: number, gain = 0.12) {
+    if (!this.context || !this.music) return;
+    const oscillator = this.context.createOscillator(); const envelope = this.context.createGain();
+    oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(142, at); oscillator.frequency.exponentialRampToValueAtTime(48, at + 0.11);
+    envelope.gain.setValueAtTime(0.0001, at); envelope.gain.exponentialRampToValueAtTime(gain, at + 0.006); envelope.gain.exponentialRampToValueAtTime(0.0001, at + 0.16);
+    oscillator.connect(envelope); this.connectMusic(envelope, -.12, .05); oscillator.start(at); oscillator.stop(at + 0.19);
+  }
+
+  private drumSnare(at: number, gain = 0.08, ghost = false) {
+    if (!this.context || !this.music || !this.noiseBuffer) return;
+    const source = this.context.createBufferSource(); const filter = this.context.createBiquadFilter(); const envelope = this.context.createGain();
+    source.buffer = this.noiseBuffer; filter.type = 'highpass'; filter.frequency.value = ghost ? 2600 : 1850; filter.Q.value = .45;
+    const duration = ghost ? .045 : .095; envelope.gain.setValueAtTime(0.0001, at); envelope.gain.exponentialRampToValueAtTime(gain, at + .003); envelope.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+    source.connect(filter).connect(envelope); this.connectMusic(envelope, .16, .06); source.start(at); source.stop(at + .12);
+  }
+
+  private drumHat(at: number, gain = 0.035, open = false) {
+    if (!this.context || !this.music || !this.noiseBuffer) return;
+    const source = this.context.createBufferSource(); const filter = this.context.createBiquadFilter(); const envelope = this.context.createGain();
+    source.buffer = this.noiseBuffer; filter.type = 'highpass'; filter.frequency.value = 6200; filter.Q.value = .35;
+    const duration = open ? .105 : .035; envelope.gain.setValueAtTime(gain, at); envelope.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+    source.connect(filter).connect(envelope); this.connectMusic(envelope, .3, .025); source.start(at); source.stop(at + .13);
+  }
+
   private noiseHit(at: number, gain: number, bright = false) {
     if (!this.context || !this.music || !this.noiseBuffer) return;
     const source = this.context.createBufferSource(); const filter = this.context.createBiquadFilter(); const envelope = this.context.createGain();
@@ -170,12 +194,26 @@ export class AudioDirector {
     const melody = data.melody[step % data.melody.length]; const bass = data.bass[Math.floor(step / 4) % data.bass.length]; const chord = data.chords[Math.floor(step / 8) % data.chords.length];
     const finale = this.intensity > 0.72 && (this.scene === 'mild' || this.scene === 'wild');
     const melodyKind = data.character === 'sneaky' ? 'mallet' : data.character === 'fanfare' || (data.character === 'chase' && step % 4 === 0) ? 'brass' : 'woodwind';
+
+    // A small but continuous drum kit gives the chamber parts a readable pulse.
+    // Each character has its own eight-eighth-note groove so the menu remains
+    // playful while the races feel progressively more urgent.
+    const barStep = step % 8;
+    const kickPattern: Record<Score['character'], number[]> = {
+      whimsy: [0, 4], sneaky: [0, 3, 4, 7], parade: [0, 3, 4, 6], chase: [0, 2, 3, 4, 6, 7], fanfare: [0, 4],
+    };
+    const drumLevel = data.character === 'chase' ? 1 : data.character === 'parade' ? .88 : data.character === 'sneaky' ? .72 : .58;
+    if (kickPattern[data.character].includes(barStep)) this.drumKick(at, .105 * drumLevel);
+    if (barStep === 2 || barStep === 6) this.drumSnare(at, .072 * drumLevel);
+    else if ((data.character === 'parade' || data.character === 'chase') && (barStep === 1 || barStep === 5)) this.drumSnare(at, .035 * drumLevel, true);
+    if (barStep % 2 === 1 || data.character === 'chase') this.drumHat(at, (barStep % 2 === 1 ? .032 : .018) * drumLevel, barStep === 7);
+
     if (melody >= 0) this.instrument(melody + (finale && step % 4 === 2 ? 12 : 0), at, eighth * (melodyKind === 'brass' ? 1.45 : .9), melodyKind === 'brass' ? .055 : .07, melodyKind);
     if (step % 4 === 0) { this.instrument(bass, at, eighth * 1.8, 0.08, 'bass'); this.timpani(bass - 12, at, data.character === 'chase' ? 0.1 : 0.055); }
     if (step % 8 === 0) chord.forEach((note, index) => this.instrument(note, at + index * .018, eighth * 7.5, .023, 'strings'));
     if (step % 4 === 2) chord.forEach((note, index) => this.instrument(note + 12, at + index * 0.018, eighth * .65, .028, 'pizz'));
     if ((data.character === 'parade' || data.character === 'fanfare') && step % 8 === 0) chord.forEach((note, index) => this.instrument(note + 12, at + index * .025, eighth * 1.7, .024, 'brass'));
-    if (data.character === 'chase') { if (step % 2 === 0) this.noiseHit(at, 0.033, step % 4 === 2); if (step % 4 === 3) this.instrument(chord[1] + 12, at, eighth * 0.42, 0.035, 'brass'); }
+    if (data.character === 'chase') { if (step % 4 === 0) this.noiseHit(at, 0.026, step % 8 === 4); if (step % 4 === 3) this.instrument(chord[1] + 12, at, eighth * 0.42, 0.035, 'brass'); }
     else if (step % 4 === 2) this.noiseHit(at, 0.018, true);
     if (finale) { if (step % 2 === 1) this.instrument(chord[step % chord.length] + 24, at, eighth * 0.38, 0.028, 'pizz'); if (step % 2 === 0) this.noiseHit(at, 0.02, true); }
   }

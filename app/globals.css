@@ -507,6 +507,315 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
   transition: transform var(--motion-ui) var(--ease-out), border-color var(--motion-ui) ease, background-color var(--motion-ui) ease, box-shadow var(--motion-ui) var(--ease-out);
 }
+
+/* Mobile game layout ------------------------------------------------------ */
+.mobile-race-tabs { display: none; }
+
+@media (max-width: 900px) {
+  :root { --mobile-header: 56px; }
+
+  html, body { width: 100%; min-width: 0; overscroll-behavior: none; }
+  button, label, input { touch-action: manipulation; }
+  .app-shell { height: 100dvh; min-height: 0; overflow: hidden; }
+
+  .app-header {
+    height: var(--mobile-header);
+    min-height: var(--mobile-header);
+    padding: env(safe-area-inset-top, 0) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+    gap: 8px;
+  }
+  .app-header .brand-type { display: none; }
+  .app-header .brand-mark { width: 36px; height: 36px; }
+  .app-header .race-pill { max-width: 42vw; padding: 7px 10px; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-header .header-controls, .app-header .header-meta { gap: 4px; }
+  .app-header .header-controls button, .app-header .header-meta button {
+    width: 40px; min-width: 40px; height: 40px; padding: 0; justify-content: center;
+  }
+  .app-header .header-controls button > span, .app-header .header-meta button > span,
+  .app-header .header-meta > span { display: none; }
+
+  /* Home: one intentional reading order, no split-screen leftovers. */
+  .home-shell {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: max(12px, env(safe-area-inset-top)) 0 max(22px, env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .home-shell::-webkit-scrollbar { display: none; }
+  .home-left, .home-right { display: contents; }
+  .home-nav, .hero-copy, .hero-actions, .asset-panel, .home-footer, .mode-panel {
+    width: auto;
+    margin-inline: 16px;
+  }
+  .home-nav { order: 1; min-height: 46px; margin-bottom: 22px; }
+  .home-nav .brand-type { display: block; }
+  .home-nav .nav-actions { gap: 2px; }
+  .home-nav .nav-actions button { width: 40px; height: 40px; padding: 0; justify-content: center; }
+  .home-nav .nav-actions button span { display: none; }
+  .hero-copy { order: 2; }
+  .hero-copy h1 { max-width: none; margin: 5px 0 12px; font-size: clamp(48px, 15vw, 70px); line-height: .92; }
+  .hero-copy > p:last-child { max-width: 31rem; font-size: 16px; line-height: 1.35; }
+  .mode-panel {
+    order: 3;
+    width: calc(100% - 32px);
+    margin-top: 24px;
+    padding: 18px 14px 12px;
+    border-radius: 24px;
+    background: linear-gradient(145deg, #4d3780, #2f244d);
+    box-shadow: 0 12px 28px rgba(35, 23, 65, .2);
+  }
+  .mode-panel > .eyebrow { margin: 0 6px 10px; color: #fff4bd; }
+  .mode-row { min-height: 70px; padding: 10px 9px; border-radius: 17px; color: rgba(255,255,255,.78); }
+  .mode-row + .mode-row { margin-top: 3px; }
+  .mode-row strong { color: #fff; font-size: 17px; }
+  .mode-row small { color: rgba(255,255,255,.66); font-size: 12px; }
+  .mode-row.active { color: #2d2145; background: #fffaf2; box-shadow: 0 5px 0 rgba(22, 13, 38, .22); }
+  .mode-row.active strong { color: #2d2145; }
+  .mode-row.active small { color: #75677f; }
+  .hero-actions { order: 4; display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+  .hero-actions button { width: 100%; min-height: 54px; justify-content: center; }
+  .asset-panel { order: 5; margin-top: 16px; padding: 16px; border-radius: 22px; }
+  .asset-copy small:last-of-type { display: none; }
+  .asset-choice { width: 100%; grid-template-columns: 1fr; }
+  .asset-choice-card { min-height: 72px; }
+  .home-footer { order: 6; padding: 18px 0 4px; gap: 5px; font-size: 10px; }
+  .poster { display: none; }
+
+  /* Draft / race selection: only the card list scrolls; actions stay reachable. */
+  .draft-shell, .race-select-shell {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    width: 100%;
+    height: calc(100dvh - var(--mobile-header));
+    margin: 0;
+    padding: 14px 12px max(8px, env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+  .section-heading { align-items: end; gap: 10px; margin: 0 0 10px; }
+  .section-heading h1 { font-size: clamp(28px, 8vw, 40px); line-height: 1; }
+  .section-heading small { display: block; margin-top: 4px; font-size: 11px; }
+  .draft-count strong { font-size: 42px; }
+  .draft-grid, .race-select-grid {
+    min-height: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 2px 2px 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .racer-card { min-height: 214px; padding: 10px; border-radius: 16px; }
+  .racer-card .card-art { height: 86px; }
+  .racer-card .card-title { font-size: 16px; }
+  .racer-card .card-ability { font-size: 11px; line-height: 1.35; }
+  .draft-assignments {
+    display: flex;
+    gap: 7px;
+    min-width: 0;
+    margin: 8px 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .draft-assignments::-webkit-scrollbar { display: none; }
+  .draft-assignment { flex: 0 0 min(68vw, 230px); min-height: 60px; padding: 9px 10px; }
+  .assignment-list { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .draft-bar {
+    position: static;
+    left: auto;
+    width: 100%;
+    inset: auto;
+    transform: none;
+    z-index: 1;
+    min-height: 58px;
+    padding: 8px 10px;
+    border-radius: 17px;
+    gap: 8px;
+  }
+  .draft-bar > span { min-width: 0; font-size: 11px; }
+  .draft-order-note { display: none; }
+  .draft-bar .primary-cta { min-width: 128px; min-height: 44px; padding: 10px 14px; }
+
+  /* Portrait race: the board owns the screen; controls become a bottom dock. */
+  .race-shell {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: calc(100dvh - var(--mobile-header));
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #17131f;
+  }
+  .race-main { position: absolute; inset: 0 0 218px; min-width: 0; overflow: hidden; }
+  .race-main > .board-wrap { position: absolute; inset: 0; margin: 0; }
+  .race-main > .board-wrap .board-3d-frame,
+  .race-main > .board-wrap .race-board { width: 100%; height: 100%; min-height: 0; border-radius: 0; }
+  .race-main > .race-heading {
+    position: absolute;
+    z-index: 14;
+    top: 10px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    margin: 0;
+    color: #fffdf8;
+    pointer-events: none;
+  }
+  .race-main > .race-heading .eyebrow { margin: 0 0 2px; color: #ffe45e; font-size: 9px; }
+  .race-main > .race-heading h1 { margin: 0; font-size: 25px; line-height: 1; text-shadow: 0 3px 8px #160e20; }
+  .race-number { font-size: 34px; line-height: .9; text-shadow: 0 3px 8px #160e20; }
+  .race-number span { font-size: 10px; }
+  .race-main > .race-top-status {
+    top: 58px;
+    left: 50%;
+    width: max-content;
+    max-width: calc(100% - 24px);
+    padding: 7px 11px;
+    transform: translateX(-50%);
+    font-size: 11px;
+  }
+  .race-main > .board-wrap > .score-panel {
+    position: absolute;
+    z-index: 15;
+    top: 90px;
+    bottom: auto;
+    left: 10px;
+    width: min(162px, 44vw);
+    margin: 0;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 14px;
+    background: rgba(30, 20, 45, .58);
+    box-shadow: 0 8px 20px rgba(13, 8, 24, .22);
+    backdrop-filter: blur(10px);
+  }
+  .race-main > .board-wrap > .score-panel .eyebrow { margin: 0 0 4px; font-size: 9px; }
+  .race-main > .board-wrap > .score-panel .score-row { min-height: 23px; padding: 2px 4px; font-size: 10px; }
+  .race-main > .board-wrap > .score-panel .score-row strong { font-size: 12px; }
+
+  .race-side {
+    position: absolute;
+    z-index: 80;
+    inset: auto 0 0;
+    display: block;
+    width: 100%;
+    height: calc(218px + env(safe-area-inset-bottom));
+    min-height: 0;
+    padding: 45px 12px max(10px, env(safe-area-inset-bottom));
+    overflow: hidden;
+    border: 0;
+    border-top: 1px solid rgba(255,255,255,.4);
+    border-radius: 24px 24px 0 0;
+    background: linear-gradient(155deg, rgba(54, 38, 78, .96), rgba(24, 17, 35, .97));
+    box-shadow: 0 -12px 32px rgba(9, 6, 18, .34);
+    backdrop-filter: blur(20px) saturate(1.15);
+  }
+  .mobile-race-tabs {
+    position: absolute;
+    top: 7px;
+    left: 12px;
+    right: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    height: 34px;
+    padding: 3px;
+    border-radius: 13px;
+    background: rgba(10, 7, 18, .35);
+  }
+  .mobile-race-tabs button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 28px;
+    border: 0;
+    border-radius: 10px;
+    color: rgba(255,255,255,.62);
+    background: transparent;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .mobile-race-tabs button.is-active { color: #302242; background: #ffe45e; box-shadow: 0 2px 0 #bd8e24; }
+  .race-side > .side-block { display: none; height: 100%; margin: 0; padding: 5px 2px; border: 0; overflow: auto; }
+  .race-side.mobile-panel-controls > .operation-block,
+  .race-side.mobile-panel-ability > .team-block,
+  .race-side.mobile-panel-log > .log-block { display: block; }
+  .race-side .operation-block .turn-strip {
+    grid-template-columns: 42px minmax(0, 1fr) 44px;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+  }
+  .race-side .operation-block .turn-copy strong { font-size: 15px; }
+  .race-side .operation-block .turn-copy small { font-size: 10px; }
+  .race-side .operation-block .roll-button { min-height: 46px; margin-top: 3px; }
+  .race-side .operation-block .ability-controls { max-height: 76px; margin-top: 7px; overflow-y: auto; }
+  .race-side .team-block .ability-card { align-items: center; }
+  .race-side .team-block .ability-card .token { flex: 0 0 auto; }
+  .race-side .team-block .ability-card span { display: block; max-height: 58px; overflow-y: auto; font-size: 12px; line-height: 1.4; }
+  .race-side .log-block .event-log { height: 142px; max-height: 142px; overflow-y: auto; }
+  .race-side .log-block .event-log p { padding: 7px 2px; font-size: 11px; line-height: 1.35; }
+
+  /* Dialogs become reachable bottom sheets on narrow screens. */
+  .system-overlay, .ability-activation-overlay, .finish-overlay, .dice-overlay, .trip-overlay {
+    padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  }
+  .system-card, .ability-confirm-card, .ability-activation-card, .finish-card, .trip-card {
+    width: min(100%, 540px);
+    max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border-radius: 22px;
+  }
+  .rules-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 600px) {
+  :root { --mobile-header: 48px; }
+  .app-header { padding-top: 0; }
+  .race-shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(265px, 35vw); }
+  .race-main { position: relative; inset: auto; height: 100%; }
+  .race-side {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: 100%;
+    padding: 43px 10px max(8px, env(safe-area-inset-bottom));
+    border-top: 0;
+    border-left: 1px solid rgba(255,255,255,.4);
+    border-radius: 20px 0 0 20px;
+  }
+  .race-main > .race-heading { top: 8px; }
+  .race-main > .race-heading h1 { font-size: 22px; }
+  .race-main > .race-top-status { top: 45px; }
+  .race-main > .board-wrap > .score-panel { top: auto; bottom: 8px; left: 8px; width: 148px; }
+  .race-side .operation-block .ability-controls { max-height: calc(100dvh - 200px); }
+  .race-side .log-block .event-log { height: calc(100dvh - 105px); max-height: none; }
+  .draft-shell, .race-select-shell { padding-top: 8px; }
+  .draft-grid, .race-select-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .draft-assignments { display: none; }
+  .racer-card { min-height: 180px; }
+}
+
+@media (max-width: 390px) and (orientation: portrait) {
+  .hero-copy h1 { font-size: 50px; }
+  .race-main { inset: 0 0 226px; }
+  .race-side { height: calc(226px + env(safe-area-inset-bottom)); }
+  .draft-count span { display: none; }
+  .racer-card { min-height: 205px; }
+}
 .home-right .mode-row::before {
   content: '';
   position: absolute;
@@ -1106,4 +1415,105 @@ body { background: radial-gradient(circle at 12% 8%, #fff 0 5%, transparent 24%)
     box-shadow: 0 4px 0 rgba(16, 9, 27, .35);
     backdrop-filter: blur(7px);
   }
+}
+
+/* Keep the mobile score HUD on the board. This intentionally comes last so
+   it wins over the legacy stacked-tablet rule retained above. */
+@media (max-width: 900px) {
+  .race-main > .board-wrap > .score-panel {
+    position: absolute;
+    z-index: 15;
+    top: 90px;
+    right: auto;
+    bottom: auto;
+    left: 10px;
+    width: min(162px, 44vw);
+    margin: 0;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 600px) {
+  .home-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(285px, 42vw);
+    height: 100dvh;
+    min-height: 0;
+    padding: 10px 0;
+    overflow: hidden;
+  }
+  .home-left, .home-right { display: flex; min-height: 0; overflow-y: auto; }
+  .home-left { padding: 0 18px; }
+  .home-right { padding: 14px 16px; }
+  .home-nav, .hero-copy, .hero-actions, .asset-panel, .home-footer, .mode-panel { width: auto; margin-inline: 0; }
+  .home-nav { padding-right: 0; margin-bottom: 10px; }
+  .home-nav .nav-actions { position: static; display: flex; width: auto; }
+  .home-nav .nav-actions button { width: 32px; min-width: 32px; height: 32px; }
+  .hero-copy { margin: auto 0 14px; }
+  .hero-copy h1 { font-size: clamp(42px, 8vw, 68px); }
+  .hero-copy > p:last-child { margin-top: 16px; font-size: 14px; }
+  .hero-actions { margin-top: 0; }
+  .hero-actions button { min-height: 44px; }
+  .asset-panel { margin-top: 10px; padding: 12px; }
+  .asset-choice-card { min-height: 58px; }
+  .home-footer { display: none; }
+  .home-shell .home-right .mode-panel { width: 100%; margin-top: 0; padding: 10px 0; background: transparent; box-shadow: none; }
+  .mode-panel > .eyebrow { margin: 0 0 8px; }
+  .mode-row { min-height: 62px; padding: 8px; }
+  .mode-row strong { font-size: 15px; }
+  .mode-row small { font-size: 10px; }
+  .race-main > .board-wrap > .score-panel {
+    top: auto;
+    bottom: 8px;
+    left: 8px;
+    width: 148px;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-shell .home-right .mode-panel { width: calc(100% - 32px); }
+  .home-nav { position: relative; padding-right: 116px; }
+  .home-nav .nav-actions {
+    position: absolute;
+    top: 3px;
+    right: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 36px);
+    gap: 2px;
+    width: 112px;
+  }
+  .home-nav .nav-actions button { width: 36px; min-width: 36px; height: 36px; }
+
+  .result-shell {
+    width: 100%;
+    height: calc(100dvh - var(--mobile-header));
+    margin: 0;
+    padding: 24px 16px max(24px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+  .result-shell h1 { margin-bottom: 24px; font-size: clamp(44px, 14vw, 72px); }
+  .result-row { grid-template-columns: 36px 10px minmax(0, 1fr) auto; gap: 8px; padding: 17px 0; }
+  .result-row strong { min-width: 0; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .result-score { font-size: 25px; }
+  .result-actions { position: sticky; bottom: 0; flex-wrap: wrap; margin-top: 24px; padding: 12px 0 max(4px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, #f6efff 20%); }
+  .result-actions .primary-cta { flex: 1; min-height: 48px; }
+
+  .room-card, .live-room-card {
+    width: calc(100% - 24px);
+    max-height: calc(100dvh - var(--mobile-header) - 24px);
+    margin: 12px auto 0;
+    padding: 22px 14px;
+    overflow-y: auto;
+    border-radius: 22px;
+  }
+  .room-card h1 { font-size: clamp(48px, 18vw, 78px); }
+  .room-code { gap: 4px; margin: 20px 0; }
+  .room-code span { width: min(13vw, 42px); height: 46px; font-size: 20px; }
+  .presence-list { max-height: 26dvh; overflow-y: auto; }
+  .room-actions { align-items: stretch; flex-direction: column; }
+  .room-actions button { width: 100%; min-height: 46px; }
+}
+
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 600px) {
+  .home-shell .home-right .mode-panel { width: 100%; }
 }
